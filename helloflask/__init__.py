@@ -11,7 +11,7 @@ app.debug = True
 
 @app.route('/')
 def main():
-    return render_template("application.html")
+    return render_template("main.html")
 
 
 @app.route('/sign_in')
@@ -20,6 +20,3 @@ def sign_in():
 
 
     
-@app.route('/test')
-def test():
-    return render_template("main.html")

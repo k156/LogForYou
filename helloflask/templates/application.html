@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+  
 
 <head>
   <meta charset="utf-8">
@@ -40,7 +41,8 @@ position:absolute;
 
   <!--Main Navigation-->
   <header>
-
+    {% block navbar %}
+    
     <!-- Navbar -->
     <nav class="navbar fixed-top navbar-expand-lg navbar-light white scrolling-navbar">
       <div class="container-fluid">
@@ -84,7 +86,7 @@ position:absolute;
           <!-- Right -->
           <ul class="navbar-nav nav-flex-icons">
             <li class="nav-item">
-                <strong id="user_name"></strong> ㅇㅇㅇ선생님</a> <!-- (이름)선생님 -->
+                <strong id="user_name"></strong>{% block username %} ㅇㅇㅇ선생님{% endblock username %}</a> <!-- (이름)선생님 -->
                 <span class="user_name"><i class="fas fa-user ml-3" a href="localhost5000/sign_in" target="_self" onclick="clickcr(this, 'nmy.idname', '', '', event);My.movePage('localhost5000/sign_in');return false;"></i></span>  <!--QQQ href 주소 '자기 정보 수정'페이지로. onclickr 수정.MymovePage 수정-->
               
                 <!-- <span class="user_name"><a href="localhost5000/sign_in" target="_self" onclick="clickcr(this, 'nmy.idname', '', '', event);My.movePage('https://nid.naver.com/user2/api/route.nhn?m=routePcProfileModification');return false;"><strong id="user_name"></strong>선생님 안녕하세요!</a></span>  
@@ -102,21 +104,27 @@ position:absolute;
       </div>
     </nav>
     <!-- Navbar -->
+    {% endblock navbar %}
 
     <!-- Sidebar -->
+
     <div class="sidebar-fixed position-fixed">
       <a class="logo-wrapper waves-effect">
         <img src="{{ url_for('static', filename='img/logo2.png') }}" href="#" class="img-fluid" alt=""> <!-- QQQ로고 제대로 된 걸로 바꾸기. href 홈으로 가게하기. src 주소 제대로 입력-->
       </a>
-
+   
       <div class="list-group list-group-flush">
+          {% block sidebar1 %} 
         <a href="#" class="list-group-item active waves-effect">
-          <i class="fas fa-user-friends mr-3"></i>{% block navbar1 %}Dashboard{% endblock navbar1 %}
-        </a>
+            <i class="fas fa-user-friends mr-3"></i>나의 환자 보기 </a> {% endblock sidebar1 %}
+            {% block sidebar2 %}
         <a href="#" class="list-group-item list-group-item-action waves-effect">
-          <i class="fas fa-table mr-3"></i>{% block navbar2 %}Profile{% endblock navbar2 %}</a>
+           <i class="fas fa-table mr-3"></i>로그 보기</a>{% endblock sidebar2 %}
+          
+        {% block sidebar3 %} 
         <a href="#" class="list-group-item list-group-item-action waves-effect">
-          <i class="fas fa-cog mr-3"></i>{% block navbar3 %}Tables{% endblock navbar3 %}</a>
+            <i class="fas fa-cog mr-3"></i> 설정 </a> {% endblock sidebar3 %}
+          
         <!-- <a href="#" class="list-group-item list-group-item-action waves-effect">
           <i class="fas fa-map mr-3"></i>Maps</a>
         <a href="#" class="list-group-item list-group-item-action waves-effect">
@@ -126,13 +134,14 @@ position:absolute;
     </div>
     <!-- Sidebar -->
 
+
   </header>
   <!--Main Navigation-->
 
   <!--Main layout-->
   <main class="pt-5 mx-lg-5">
     <div class="container-fluid mt-5">
-
+        {% block heading %}  
       <!-- Heading -->
       <div class="card mb-4 wow fadeIn">
 
@@ -157,9 +166,11 @@ position:absolute;
         </div>
 
       </div>
+      {% endblock heading %}  
       <!-- Heading -->
 
-
+      
+      {% block body %}  
       <!--Grid row-->
       <div class="row wow fadeIn">
 
@@ -178,9 +189,9 @@ position:absolute;
                 <thead class="blue-grey lighten-4">
                   <tr>
                     <th>#</th>
-                    <th>Lorem</th>
-                    <th>Ipsum</th>
-                    <th>Dolor</th>
+                    <th>환자번호</th>
+                    <th>환자명</th>
+                    <th>생년월일</th>
                   </tr>
                 </thead>
                 <!-- Table head -->
@@ -233,9 +244,9 @@ position:absolute;
                 <thead class="blue lighten-4">
                   <tr>
                     <th>#</th>
-                    <th>Lorem</th>
-                    <th>Ipsum</th>
-                    <th>Dolor</th>
+                    <th>환자번호</th>
+                    <th>환자명</th>
+                    <th>생년월일</th>
                   </tr>
                 </thead>
                 <!-- Table head -->
@@ -296,9 +307,9 @@ position:absolute;
                       <thead class="blue-grey lighten-4">
                         <tr>
                           <th>#</th>
-                          <th>Lorem</th>
-                          <th>Ipsum</th>
-                          <th>Dolor</th>
+                          <th>환자번호</th>
+                          <th>환자명</th>
+                          <th>생년월일</th>
                         </tr>
                       </thead>
                       <!-- Table head -->
@@ -351,9 +362,9 @@ position:absolute;
                       <thead class="blue lighten-4">
                         <tr>
                           <th>#</th>
-                          <th>Lorem</th>
-                          <th>Ipsum</th>
-                          <th>Dolor</th>
+                          <th>환자번호</th>
+                          <th>환자명</th>
+                          <th>생년월일</th>
                         </tr>
                       </thead>
                       <!-- Table head -->
@@ -396,13 +407,14 @@ position:absolute;
    
     </div>
   </main>
+  {% endblock body %}  
   <!--Main layout-->
 
   <!--Footer-->
   <footer class="page-footer text-center font-small primary-color-dark darken-2 mt-4 wow fadeIn">
 
     <!--Call to action-->
-    <div class="pt-4">
+    <!-- <div class="pt-4">
       <a class="btn btn-outline-white" href="https://mdbootstrap.com/docs/jquery/getting-started/download/" target="_blank"
         role="button">Download
         MDB
@@ -412,14 +424,14 @@ position:absolute;
         free tutorial
         <i class="fas fa-graduation-cap ml-2"></i>
       </a>
-    </div>
+    </div> -->
     <!--/.Call to action-->
 
     <hr class="my-4">
 
     <!-- Social icons -->
     <div class="pb-4">
-      <a href="https://www.facebook.com/mdbootstrap" target="_blank">
+      <!-- <a href="https://www.facebook.com/mdbootstrap" target="_blank">
         <i class="fab fa-facebook-f mr-3"></i>
       </a>
 
@@ -449,14 +461,18 @@ position:absolute;
 
       <a href="http://codepen.io/mdbootstrap/" target="_blank">
         <i class="fab fa-codepen mr-3"></i>
-      </a>
+      </a> -->
     </div>
     <!-- Social icons -->
 
     <!--Copyright-->
     <div class="footer-copyright py-3">
       © 2019 Copyright:
-      <a href="https://mdbootstrap.com/education/bootstrap/" target="_blank"> MDBootstrap.com </a>
+      <a href="/" target="_blank">{% block copyright %}MDBootstrap.com{% endblock copyright %} </a> <!--QQQ copyright. href. --> 
+      <p>
+        <a href="mailto:logforyou@gamil.com?Subject=Hello%20again" target="_top">{% block email %}email {% endblock email %}</a>
+        </p>
+        
     </div>
     <!--/.Copyright-->
 

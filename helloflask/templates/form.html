@@ -44,7 +44,9 @@
                   background: #1C2331!important;
               }
           }
-  </style>
+          </style>
+  {% block style %}
+  {% endblock style %}
 </head>
 
 <body>
@@ -55,7 +57,7 @@
 
       <!-- Brand -->
       <a class="navbar-brand" href="https://mdbootstrap.com/docs/jquery/" target="_blank">
-        <strong>MDB</strong>
+        <strong>{% block brand %}MDB{% endblock brand %}</strong> 
       </a>
 
       <!-- Collapse -->
@@ -102,6 +104,7 @@
   </nav>
   <!-- Navbar -->
 
+  {% block body %}
   <!-- Full Page Intro -->
   <div class="view full-page-intro" style="background-image: url('https://mdbootstrap.com/img/Photos/Others/images/78.jpg'); background-repeat: no-repeat; background-size: cover;">
 
@@ -202,7 +205,7 @@
 
   </div>
   <!-- Full Page Intro -->
-
+  {% endblock body %}
   <!--Main layout-->
   <main>
     <div class="container">
@@ -705,10 +708,12 @@
   <!-- MDB core JavaScript -->
   <script type="text/javascript" src="{{ url_for('static', filename='js/mdb.min.js')}}"></script>
   <!-- Initializations -->
+  {% block bottomscript %}
   <script type="text/javascript">
     // Animations initialization
     new WOW().init();
   </script>
+  {% endblock bottomscript %}
 </body>
 
 </html>

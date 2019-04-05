@@ -48,7 +48,15 @@ def sign_in():
         
 
 
-@app.route('/sign_up')
+@app.route('/sign_up', methods = ['GET', 'POST'])
 def sign_up():
-    return render_template("sign_up.html")
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = User(email = form.email.data, 
+                    username = form.username.data,
+                    password = form.password.data)
+        db.session.add(user)
+        flash('You can now login.')
+        return redirect(url_for('form_extended'))
+    return render_template("sign_up.html", form=form) # QQQ 코드 배껴적음. 다시 확인하기.
     

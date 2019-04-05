@@ -1,9 +1,19 @@
 {% extends "application.html" %}
 
 
-{% block username %} ㅇㅇㅇ선생님{% endblock username %}
 
 
+{% block username %} <strong>{{uname}}</strong> 선생님{% endblock username %}
+
+
+{% block box %}
+        <i class="fas fa-user ml-3 dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown">user</i>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" href="#">Action</a>
+          <a class="dropdown-item" href="#">Another action</a>
+          <a class="dropdown-item" href="/logout">로그아웃</a>
+        </div>
+{% endblock box %}
 
 
 {% block mypt %}나의 환자 리스트{% endblock mypt %}

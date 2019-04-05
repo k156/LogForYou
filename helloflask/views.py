@@ -44,7 +44,7 @@ def sign_in():
             next = session.get('next')
             del session['next']
             return redirect(next)
-        return render_template("main.html")
+        return render_template("main.html", uname=session['loginUser']["name"])
         # return redirect('/')
     else:
         flash("해당 사용자가 없습니다!!")
@@ -53,3 +53,14 @@ def sign_in():
 @app.route('/sign_up')
 def sign_up():
     return render_template("sign_up.html")
+
+@app.route('/logout')
+def logout():
+    if session.get('loginUser'):
+        del session['loginUser']
+    
+    return redirect('/sign_in')
+
+@app.route('/test')
+def test():
+    return render_template("test.html")

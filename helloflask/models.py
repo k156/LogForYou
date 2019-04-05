@@ -1,4 +1,4 @@
-from helloflask.templates.init_db import Base
+from helloflask.init_db import Base
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 

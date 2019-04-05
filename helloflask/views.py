@@ -21,6 +21,8 @@ app.config.update(
 
 @app.route('/')
 def main():
+    if session.get('loginUser') == None:
+        return redirect('/sign_in')
     return render_template("main.html")
 
 @app.route('/sign_in', methods=['GET'])

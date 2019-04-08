@@ -64,12 +64,6 @@ def logout():
 def test():
     return render_template("test.html")
 
-
-    
-@app.route('/sign_in', methods=['GET'])
-def pre_sign_up():
-    return render_template("modal.html")
-
     
 @app.route('/sign_up', methods=['GET'])
 def show_sign_up():

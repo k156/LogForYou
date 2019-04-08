@@ -1,10 +1,25 @@
-{% extends "form.html" %}
+{% extends "application.html" %}
+{% from "macro/test_form.html" import coloumn_range5, column_boolean, column_inputbox %}
 
 {% block box %}
         <i class="fas fa-user ml-3 dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown">user</i>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="#">Action</a>
-          <a class="dropdown-item" href="#">Another action</a>
-          <a class="dropdown-item" href="#">Something else here</a>
+          <a class="dropdown-item" href="#">서브메뉴 1</a>
+          <a class="dropdown-item" href="#">서브메뉴 2</a>
+          <a class="dropdown-item" href="#">서브메뉴 3</a>
         </div>
 {% endblock box %}
+<!--  QQQ log table에 인풋 -->
+
+{% block body %}
+<form action="" method="POST">
+{% if ucol %}
+  {{ucol}}
+{% endif %}
+{{coloumn_range5()}}
+{{column_inputbox()}}
+{{column_boolean()}}
+<!-- QQQ 버튼 중앙에 위치시키기  -->
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{% endblock body %}

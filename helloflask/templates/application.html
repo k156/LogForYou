@@ -86,7 +86,7 @@ position:absolute;
           <!-- Right -->
           <ul class="navbar-nav nav-flex-icons">
             <li class="nav-item">
-                <strong id="user_name"></strong>{% block username %} ㅇㅇㅇ선생님{% endblock username %}</a> <!-- (이름)선생님 -->
+                <strong id="user_name"></strong>{% block username %} {{uname}} 선생님{% endblock username %}</a> <!-- (이름)선생님 -->
                 <span class="user_name dropdown">
                     {% block box %}
                   <i class="fas fa-user ml-3" a href="localhost5000/sign_in" target="_self" onclick="clickcr(this, 'nmy.idname', '', '', event);My.movePage('localhost5000/sign_in');return false;"></i>
@@ -142,6 +142,7 @@ position:absolute;
   </header>
   <!--Main Navigation-->
 
+  {% block main %}
   <!--Main layout-->
   <main class="pt-5 mx-lg-5">
     <div class="container-fluid mt-5">
@@ -412,6 +413,7 @@ position:absolute;
     </div>
   </main>
   {% endblock body %}  
+  {% endblock main %}
   <!--Main layout-->
 
   <!--Footer-->

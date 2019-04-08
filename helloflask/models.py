@@ -1,6 +1,6 @@
-from helloflask.init_db import Base
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import relationship
+from helloflask.init_db import Base, db_session
+from sqlalchemy import Column, Integer, String, func, ForeignKey
+from sqlalchemy.orm import relationship, joinedload
 
 class Doctor(Base):
     __tablename__ = 'Doctors'
@@ -28,6 +28,8 @@ class Patient(Base):
     name = Column(String)
     email = Column(String, unique=True)
     password = Column(String)
+    pat_usercol = relationship('Pat_Usercol')
+
     # doc_pat = relationship('Doc_Pat')
     
     ## log, col-patients relationship 필요.
@@ -42,3 +44,26 @@ class Patient(Base):
 
     def __repr__(self):
         return 'User %s, %r, %r' % (self.id, self.email, self.name)
+
+class Pat_Usercol(Base):
+    __tablename__ = 'Pat_Usercol'
+    id = Column(Integer, primary_key = True)
+    pat_id = Column(Integer, ForeignKey('Patients.id'))
+    usercol_id = Column(Integer, ForeignKey('UsercolMaster.id'))
+    pat = relationship('Patient')
+    usercol = relationship('UsercolMaster')
+
+class UsercolMaster(Base):
+    __tablename__ = 'UsercolMaster'
+    id = Column(Integer, primary_key = True)
+    col_name = Column(String)
+    min = Column(Integer)
+    max = Column(Integer)
+    col_desc = Column(String)
+    dept_id = Column(Integer)
+    col_type = Column(Integer)
+    pat_usercol = relationship('Pat_Usercol')
+
+    def __repr__(self):
+        return 'Column %s, %r, %r, %s' % (self.id, self.col_name, self.col_desc, self.col_type)
+

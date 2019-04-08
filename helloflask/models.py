@@ -1,5 +1,5 @@
 from helloflask.init_db import Base
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, func
 from sqlalchemy.orm import relationship
 
 class Doctor(Base):

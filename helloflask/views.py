@@ -1,6 +1,8 @@
 from helloflask import app
-from flask import render_template, request, session, redirect, flash
+from flask import render_template, request, session, redirect, flash, url_for
 from helloflask.models import Patient, Doctor
+import os
+from sqlalchemy import func
 
 from datetime import date, datetime, timedelta
 
@@ -21,8 +23,6 @@ app.config.update(
 
 @app.route('/')
 def main():
-    if session.get('loginUser') == None:
-        return redirect('/sign_in')
     return render_template("main.html")
 
 @app.route('/sign_in', methods=['GET'])
@@ -36,9 +36,9 @@ def sign_in():
     table = request.form.get('table')
 
     if table == 'patient':
-        u = Patient.query.filter('email = :email and password = sha2(:passwd, 256)').params(email=email, passwd=passwd).first()
+        u = Patient.query.filter(Patient.email == email and Patient.password == func.sha2(passwd, 256)).first()
     else:
-        u = Doctor.query.filter('email = :email and password = sha2(:passwd, 256)').params(email=email, passwd=passwd).first()
+        u = Doctor.query.filter(Doctor.email == email and Doctor.password == func.sha2(passwd, 256)).first()
 
     if u is not None:
         session['loginUser'] = { 'userid': u.id, 'name': u.name }

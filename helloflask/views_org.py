@@ -66,13 +66,9 @@ def test():
 
 
     
-@app.route('/sign_in', methods=['GET'])
-def pre_sign_up():
-    return render_template("modal.html")
-
-    
 @app.route('/sign_up', methods=['GET'])
 def show_sign_up():
+    print("222222222222222222222")
     return render_template("sign_up.html")
 
 @app.route('/sign_up', methods=['POST'])

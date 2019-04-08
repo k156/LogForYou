@@ -1,0 +1,15 @@
+{% extends "modal.html" %}
+
+{% block button %} 가입하기 {% endblock button %}
+{% block heading %} 서비스 약관 {% endblock heading %}
+
+{% block modalbody %} 
+서비스 약관 자리
+{% endblock modalbody %}
+{% block modalfooter %}
+<form action="/action_page.php">
+    <input type="radio" name="docpat" value="doctor"> 의사입니다.<br>
+    <input type="radio" name="docpat" value="patient"> 환자입니다.<br>
+    <input type="submit" value="Submit">
+  </form>  
+{% endblock modalfooter %}

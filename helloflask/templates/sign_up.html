@@ -6,48 +6,38 @@
 {% block sidebar3 %}{% endblock sidebar3 %}
 {% block heading %}{% endblock heading %}  
 {% block body %} 
+
 <!-- Default form register -->
-<form class="text-center border border-light p-5">
-
-    <p class="h4 mb-4">Sign up</p>
-
-    <div class="form-row mb-4">
-        <div class="col">
-            <!-- First name -->
-            <input type="text" id="defaultRegisterFormFirstName" class="form-control" placeholder="First name">
-        </div>
-        <div class="col">
-            <!-- Last name -->
-            <input type="text" id="defaultRegisterFormLastName" class="form-control" placeholder="Last name">
-        </div>
+<form action='/sign_up' method="POST">
+    <div class="form-group">
+        <input type="text" id="defaultRegisterFormFirstName" class="form-control" placeholder="이름" name="username">
+        <small id="name_description" class="form-text text-muted mb-4">
+            본명을 입력하세요.
+        </small>
     </div>
-
-    <!-- E-mail -->
-    <input type="email" id="defaultRegisterFormEmail" class="form-control mb-4" placeholder="E-mail">
-
-    <!-- Password -->
-    <input type="password" id="defaultRegisterFormPassword" class="form-control" placeholder="Password" aria-describedby="defaultRegisterFormPasswordHelpBlock">
-    <small id="defaultRegisterFormPasswordHelpBlock" class="form-text text-muted mb-4">
-        At least 8 characters and 1 digit
-    </small>
-
-    <!-- Phone number -->
-    <input type="text" id="defaultRegisterPhonePassword" class="form-control" placeholder="Phone number" aria-describedby="defaultRegisterFormPhoneHelpBlock">
-    <small id="defaultRegisterFormPhoneHelpBlock" class="form-text text-muted mb-4">
-        Optional - for two step authentication
-    </small>
-
-    <!-- Newsletter -->
-    <div class="custom-control custom-checkbox">
-        <input type="checkbox" class="custom-control-input" id="defaultRegisterFormNewsletter">
-        <label class="custom-control-label" for="defaultRegisterFormNewsletter">Subscribe to our newsletter</label>
+    <div class="form-group">
+      <label for="exampleInputEmail1">Email address</label>
+      <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" name="email">
+      <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
     </div>
+    <div class="form-group">
+      <label for="exampleInputPassword1">Password</label>
+      <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password" name="password">
+    </div>
+        <!-- Password check -->
+    <div class="form-group">
+        <input type="password" id="defaultRegisterFormPassword2" class="form-control" placeholder="비밀번호 확인" aria-describedby="defaultRegisterFormPasswordHelpBlock" name="password2">
+    </div>
+    <div class="form-group form-check">
+      <input type="checkbox" class="form-check-input" id="exampleCheck1">
+      <label class="form-check-label" for="exampleCheck1">Check me out</label>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+ 
 
-    <!-- Sign up button -->
-    <button class="btn btn-info my-4 btn-block" type="submit">Sign in</button>
 
     <!-- Social register -->
-    <p>or sign up with:</p>
+    <p>소셜 로그인</p>
 
     <a type="button" class="light-blue-text mx-2">
         <i class="fab fa-facebook-f"></i>

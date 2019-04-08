@@ -1,6 +1,9 @@
 from helloflask import app
 from flask import render_template, request, session, redirect, flash
-from helloflask.models import Patient, Doctor
+from helloflask.models import Patient, Doctor, Pat_Usercol, UsercolMaster
+from sqlalchemy import func
+from helloflask.init_db import db_session
+from sqlalchemy.orm import joinedload
 
 from datetime import date, datetime, timedelta
 
@@ -51,10 +54,6 @@ def sign_in():
     else:
         flash("해당 사용자가 없습니다!!")
         return render_template("form_extended.html")
-        
-@app.route('/sign_up')
-def sign_up():
-    return render_template("sign_up.html")
 
 @app.route('/logout')
 def logout():
@@ -63,6 +62,42 @@ def logout():
     
     return redirect('/sign_in')
 
+@app.route('/sign_up', methods=['GET'])
+def show_sign_up():
+    return render_template("sign_up_html.html")
+
+@app.route('/sign_up', methods=['POST'])
+def sign_up():
+    email = request.form.get('email')
+    password = request.form.get('password')
+    password2 = request.form.get('password2')
+    username = request.form.get('username')
+
+    print(email, username)
+    if password != password2:
+        flash("암호를 정확히 입력하세요!!")
+        return render_template("sign_up.html", email=email, username=username)
+    else:
+        u = Patient(email, password, username, True)
+        try:
+            db_session.add(u)
+            db_session.commit()
+
+        except:
+            db_session.rollback()
+
+        flash("%s 님, 가입을 환영합니다!" % username)
+        return redirect("/sign_in")
+
 @app.route('/test')
 def test():
-    return render_template("test.html")
+    # QQQ 가로그인 처리
+    u = Patient.query.filter(Patient.email == "a@com" and Patient.password ==  func.sha2("a", 256)).first()
+    # if session.get('loginUser') == None:
+    #     return redirect('/sign_in')
+
+    ret2 = db_session.query(UsercolMaster).join(Pat_Usercol, UsercolMaster.id == Pat_Usercol.usercol_id).join(Patient, Patient.id == Pat_Usercol.pat_id).filter(Patient.id == 1).all()
+    
+
+
+    return render_template("test.html", uname=u.name, ucol=ret2) 

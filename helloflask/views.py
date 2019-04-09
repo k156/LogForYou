@@ -1,6 +1,6 @@
 from helloflask import app
 from flask import render_template, request, session, redirect, flash
-from helloflask.models import Patient, Doctor
+from helloflask.models import Patient, Doctor, UsercolMaster, Pat_Usercol
 from helloflask.init_db import db_session
 from datetime import date, datetime, timedelta
 
@@ -60,9 +60,7 @@ def logout():
     
     return redirect('/sign_in')
 
-@app.route('/test')
-def test():
-    return render_template("test.html")
+
 
     
 @app.route('/sign_up', methods=['GET'])
@@ -94,3 +92,22 @@ def sign_up():
             return render_template("sign_up.html", email=email, username=username)
 
 
+@app.route("/test")
+def test():
+   # QQQ 가로그인 처리
+   u = Patient.query.filter(Patient.email == "a@com" and Patient.password ==  func.sha2("a", 256)).first()
+   # if session.get(‘loginUser’) == None:
+   #     return redirect(‘/sign_in’)
+
+   ret2 = db_session.query(UsercolMaster).join(Pat_Usercol, UsercolMaster.id == Pat_Usercol.usercol_id).join(Patient, Patient.id == Pat_Usercol.pat_id).filter(Patient.id == 1).all()
+
+   # ret2 = Pat_Usercol.usercol
+   # print()
+
+   # ret2 = db_session.query(UsercolMaster).all()
+   # ret2 = db_session.query(Pat_Usercol).filter(Pat_Usercol.pat_id == ‘1’).all()
+
+   for i in ret2:
+       print(i)
+
+   return render_template("test.html", uname=u.name, ucol=ret2)

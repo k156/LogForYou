@@ -53,6 +53,9 @@ class Pat_Usercol(Base):
     pat = relationship('Patient')
     usercol = relationship('UsercolMaster')
 
+    # def __repr__(self):
+    #     return 'Pat_Usercol %s, %s' % (self.pat, self.usercol)
+
 class UsercolMaster(Base):
     __tablename__ = 'UsercolMaster'
     id = Column(Integer, primary_key = True)
@@ -65,5 +68,5 @@ class UsercolMaster(Base):
     pat_usercol = relationship('Pat_Usercol')
 
     def __repr__(self):
-        return 'Column %s, %r, %r, %s' % (self.id, self.col_name, self.col_desc, self.col_type)
+        return 'Column %s, %s, %s, %s' % (self.id, self.col_name, self.col_desc, self.col_type)
 

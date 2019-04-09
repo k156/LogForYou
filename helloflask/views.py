@@ -2,6 +2,7 @@ from helloflask import app
 from flask import render_template, request, session, redirect, flash
 from helloflask.models import Patient, Doctor, Pat_Usercol, UsercolMaster
 from sqlalchemy import func
+from sqlalchemy.sql import select
 from helloflask.init_db import db_session
 from sqlalchemy.orm import joinedload
 
@@ -97,7 +98,14 @@ def test():
     #     return redirect('/sign_in')
 
     ret2 = db_session.query(UsercolMaster).join(Pat_Usercol, UsercolMaster.id == Pat_Usercol.usercol_id).join(Patient, Patient.id == Pat_Usercol.pat_id).filter(Patient.id == 1).all()
-    
 
+    # ret2 = Pat_Usercol.usercol
+    # print()
+
+    # ret2 = db_session.query(UsercolMaster).all()
+    # ret2 = db_session.query(Pat_Usercol).filter(Pat_Usercol.pat_id == '1').all()
+
+    for i in ret2:
+        print(i)
 
     return render_template("test.html", uname=u.name, ucol=ret2) 

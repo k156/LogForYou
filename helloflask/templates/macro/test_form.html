@@ -1,12 +1,12 @@
-{% macro coloumn_range5() %}
+{% macro coloumn_range5(name, num) %}
 <div class="card mb-4 wow fadeIn">
     <!--Card content-->
     <div class="card-body d-sm-flex justify-content-between">
         <h4 class="mb-2 mb-sm-0 pt-1">
-            <span>칼럼네임</span>
+            <span>{{name}}</span>
         </h4>
         <div class="form-group col-10">
-            <select class="form-control" id="exampleFormControlSelect1">
+            <select class="form-control" id="exampleFormControlSelect1" name='{{num}}'>
                 <option>전체</option>
                 <option>1</option>
                 <option>2</option>
@@ -19,26 +19,22 @@
 </div>
 {% endmacro %}
 
-{% macro column_boolean() %}
+{% macro column_boolean(name, num) %}
 <div class="card mb-4 wow fadeIn">
     <!--Card content-->
     <div class="card-body d-sm-flex justify-content-between">
         <h4 class="mb-2 mb-sm-0 pt-1">
-            <span>칼럼네임</span>
+            <span>{{name}}</span>
         </h4>
         <div class="form-group col-8 container">
             <div class="row">
-                <div class="form-check col">
-                    <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="option1" checked>
-                    <label class="form-check-label" for="exampleRadios1">
-                    있음.
-                    </label>
+                <div class="form-check form-check-inline col">
+                    <input class="form-check-input" type="radio" name="{{num}}" id="inlineRadio1" value="option1">
+                    <label class="form-check-label" for="inlineRadio1">1</label>
                 </div>
-                <div class="form-check col">
-                    <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2">
-                    <label class="form-check-label" for="exampleRadios2">
-                    없음.
-                    </label>
+                <div class="form-check form-check-inline col">
+                    <input class="form-check-input" type="radio" name="{{num}}" id="inlineRadio2" value="option2">
+                    <label class="form-check-label" for="inlineRadio2">2</label>
                 </div>
             </div>
         </div>  
@@ -46,16 +42,20 @@
 </div>
 {% endmacro %}
 
-{% macro column_inputbox() %}
+{% macro column_inputbox(name, num) %}
 <div class="card mb-4 wow fadeIn">
         <!--Card content-->
         <div class="card-body d-sm-flex justify-content-between">
             <h4 class="mb-2 mb-sm-0 pt-1">
-                <span>칼럼네임</span>
+                <span>{{name}}</span>
             </h4>
             <div class="form-group col-10">
-                <input type="text" class="form-control" id="formGroupExampleInput" placeholder="내용 입력">
+                <input type="text" class="form-control" id="formGroupExampleInput" placeholder="내용 입력" name='{{num}}'>
             </div>  
         </div>
     </div>
+{% endmacro %}
+
+{% macro test_call(name) %}
+<div>{{name}} {{caller(x='sss')}}</div>
 {% endmacro %}

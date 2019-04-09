@@ -1,10 +1,43 @@
-{% extends "form.html" %}
+{% extends "application.html" %}
+{% from "macro/test_form.html" import coloumn_range5, column_boolean, column_inputbox, test_call %}
 
 {% block box %}
         <i class="fas fa-user ml-3 dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown">user</i>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="#">Action</a>
-          <a class="dropdown-item" href="#">Another action</a>
-          <a class="dropdown-item" href="#">Something else here</a>
+          <a class="dropdown-item" href="#">서브메뉴 1</a>
+          <a class="dropdown-item" href="#">서브메뉴 2</a>
+          <a class="dropdown-item" href="#">서브메뉴 3</a>
         </div>
 {% endblock box %}
+<!--  QQQ log table에 인풋 -->
+
+{% block body %}
+<form action="" method="POST">
+{% set i = 0 %}
+{% if ucol %}
+  {% for ii in ucol %}
+    {{ii.col_type}}
+      {% if ii.col_type == 1 %}
+      {% set i = i + 1 %}
+        {{coloumn_range5(ii.col_name, i)}}
+      {% elif ii.col_type == 2 %}
+      {% set i = i + 1 %}
+        {{column_inputbox(ii.col_name, i)}}
+      {% elif ii.col_type == 3 %}
+      {% set i = i + 1 %}
+        {{column_boolean(ii.col_name, i)}}
+      {% endif %}
+  {% endfor %}
+{% endif %}
+
+{% call(x) test_call('테스트') %}
+  dddd {{x}}
+{% endcall %}
+
+{{coloumn_range5()}}
+{{column_inputbox()}}
+{{column_boolean()}}
+<!-- QQQ 버튼 중앙에 위치시키기  -->
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{% endblock body %}

@@ -2,7 +2,7 @@ from flask import Flask, g, Response, make_response, request, render_template, M
 from datetime import date, datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from helloflask.init_db import init_database, db_session
-from helloflask.models import Patient, Doctor
+from helloflask.models import Patient, Doctor, Log, UsercolMaster, Pat_Usercol
 from flask import url_for
 
 

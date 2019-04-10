@@ -1,8 +1,8 @@
 from helloflask import app
 from flask import render_template, request, session, redirect, flash
-from helloflask.models import Patient, Doctor, Pat_Usercol, UsercolMaster
+from helloflask.models import Patient, Doctor, Pat_Usercol, UsercolMaster, Log
 from sqlalchemy import func
-from sqlalchemy.sql import select
+from sqlalchemy.sql import select, insert
 from helloflask.init_db import db_session
 from sqlalchemy.orm import joinedload
 
@@ -107,5 +107,60 @@ def test():
 
     for i in ret2:
         print(i)
-
+        print(i.id)
     return render_template("test.html", uname=u.name, ucol=ret2) 
+
+@app.route('/test', methods=['POST'])
+def test_input():
+    # from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, DATE
+    # metadata = MetaData()
+    # users = Table('Log', metadata,
+    #                 Column('id', Integer, primary_key=True),
+    #                 Column('pat_id', String),
+    #                 Column('date', DATE),
+    #                 Column('usercol_id', String),
+    #                 Column('value', String))
+
+    s = db_session()
+    lst = request.form
+    print(">>>>>", len(lst))
+    lst1 = []
+    for ll in lst:
+        print(ll)
+        v = request.form.get(ll)
+        print("v", v)
+        l = Log(1, ll, v)
+        lst1.append(l.get_json())
+
+    print(lst1)
+
+
+    try:
+        db_session.bulk_insert_mappings(Log,lst1)
+        print("bbbb>>>>>>>>>>>>>")
+        db_session.commit()
+    except:
+        print("cccc")
+        db_session.rollback()
+
+    
+    # print(lst1)
+
+    # # for i in lst1:
+    # #     print("<<<", type(i))
+    # #     if i.col_name:
+    # #         print("<<<", i['col_name'])
+        
+    # s = db_session()
+    # s.execute(users.insert(),lst1)
+    
+    # db_session.execute()
+    # Log.metadata.execute()
+
+    # Log.query.execute(insert(), lst1)
+    
+    
+
+    return "OK"
+
+

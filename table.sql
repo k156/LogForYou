@@ -92,7 +92,7 @@ select *
   from Pat_Usercol;
 select *
   from UsercolMaster; 
-## 1 2 11 12 18 19 int, str.
+## 1 2 18 19 48 49 int, str.
 desc UsercolMaster;
 select *
   from DisCode;
@@ -100,15 +100,27 @@ select *
 
 select * 
   from Usercol_DisCode;
-  
-insert into Usercol_DisCode(usercol_id, discode_id) values(19, 311);
+delete from Usercol_DisCode where usercol_id = 18;
+
+insert into Usercol_DisCode(usercol_id, discode_id) values(49, 311);
 select *
   from Pat_Usercol;
+truncate table Pat_Usercol;
 select * from Usercol_DisCode where discode_id = 311;
 insert into Pat_Usercol(pat_id, usercol_id) select 1, usercol_id from Usercol_DisCode;
-
-
-
+select * 
+  from Log;
+select um.col_name
+  from Patients as p inner join Pat_Usercol as pu on p.id = pu.pat_id
+	inner join UsercolMaster  as um on um.id = pu.usercol_id
+    where p.id = 1;
+select * from UsercolMaster;
+desc Pat_Usercol;
+select *
+  from Log;
+show create table Log;
+select *
+  from DocPat_Disc;
 select *
   from Patients;
 
@@ -120,3 +132,4 @@ SET @@GLOBAL.sql_mode = 'NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
 SELECT @@global.sql_mode;
 
 21:14:44	SET @@GLOBAL.sql_mode = 'NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'	Error Code: 1227. Access denied; you need (at least one of) the SUPER privilege(s) for this operation	0.037 sec
+

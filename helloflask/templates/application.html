@@ -86,11 +86,14 @@ position:absolute;
           <!-- Right -->
           <ul class="navbar-nav nav-flex-icons">
             <li class="nav-item">
-                <strong id="user_name"></strong>{% block username %} ㅇㅇㅇ선생님{% endblock username %}</a> <!-- (이름)선생님 -->
+                <strong id="user_name"></strong>{% block username %} {{uname}} 선생님{% endblock username %}</a> <!-- (이름)선생님 -->
                 <span class="user_name dropdown">
-                    {% block box %}
-                  <i class="fas fa-user ml-3" a href="localhost5000/sign_in" target="_self" onclick="clickcr(this, 'nmy.idname', '', '', event);My.movePage('localhost5000/sign_in');return false;"></i>
-                  {% endblock box %}
+                    <i class="fas fa-user ml-3 dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown">user</i>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                      <a class="dropdown-item" href="#">서브메뉴 1</a>
+                      <a class="dropdown-item" href="#">서브메뉴 2</a>
+                      <a class="dropdown-item" href="/logout">로그아웃</a>
+                    </div>
                 </span>  <!--QQQ href 주소 '자기 정보 수정'페이지로. onclickr 수정.MymovePage 수정-->
               
                 <!-- <span class="user_name"><a href="localhost5000/sign_in" target="_self" onclick="clickcr(this, 'nmy.idname', '', '', event);My.movePage('https://nid.naver.com/user2/api/route.nhn?m=routePcProfileModification');return false;"><strong id="user_name"></strong>선생님 안녕하세요!</a></span>  
@@ -142,6 +145,7 @@ position:absolute;
   </header>
   <!--Main Navigation-->
 
+  {% block main %}
   <!--Main layout-->
   <main class="pt-5 mx-lg-5">
     <div class="container-fluid mt-5">
@@ -173,6 +177,9 @@ position:absolute;
       {% endblock heading %}  
       <!-- Heading -->
 
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+          Open modal
+        </button>
       
 {% block badge %}
 
@@ -417,6 +424,7 @@ position:absolute;
     </div>
   </main>
   {% endblock body %}  
+  {% endblock main %}
   <!--Main layout-->
 
   <!--Footer-->

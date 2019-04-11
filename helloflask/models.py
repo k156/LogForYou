@@ -1,6 +1,6 @@
-from helloflask.init_db import Base
-from sqlalchemy import Column, Integer, String, func, ForeignKey
-from sqlalchemy.orm import relationship
+from helloflask.init_db import Base, db_session
+from sqlalchemy import Column, Integer, String, func, ForeignKey, DATE, MetaData, Table, DATETIME
+from sqlalchemy.orm import relationship, joinedload
 
 class Doctor(Base):
     __tablename__ = 'Doctors'
@@ -70,3 +70,25 @@ class UsercolMaster(Base):
 
     def __repr__(self):
         return 'Column %s, %s, %s, %s' % (self.id, self.col_name, self.col_desc, self.col_type)
+
+class Log(Base):
+    __tablename__ = 'Log'
+    id = Column(Integer, primary_key = True)
+    pat_id = Column(Integer)
+    # date = Column(String)
+    date = Column(DATETIME)
+    usercol_id = Column(Integer)
+    value = Column(String)
+    # pat_usercol = relationship('Pat_Usercol')
+
+    def __init__(self, pat_id, usercol_id, value):
+        self.pat_id = pat_id
+        self.usercol_id = usercol_id 
+        self.value = value
+        self.metadata = MetaData()
+    
+    def __repr__(self):
+        return 'Log %s, %s, %s, %s' % (self.pat_id, self.date, self.usercol_id, self.value)
+    
+    def get_json(self):
+        return {"pat_id" : self.pat_id, "usercol_id" : self.usercol_id, "value" : self.value}

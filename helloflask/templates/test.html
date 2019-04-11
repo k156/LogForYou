@@ -1,18 +1,42 @@
 {% extends "application.html" %}
-{% from "macro/register.html" import register %}
+{% from "macro/column_input_forms.html" import coloumn_range5, column_boolean, column_inputbox, column_time %}
+
 
 
 {% block body %}
-{% endblock body %}
+<div class="container">
+  <h2>Modal Example</h2>
+  <!-- Button to Open the Modal -->
 
-
-
-<div class ="#modal"> {{register()}} </div>
-{% block badge %}
-<div class="col-12" id="modal">
-  <button type="button" class="btn btn-lg btn-primary" data-toggle="modal" data-target="#modal">
-      등록하기
-  </button>
+  <input type="datetime" name="test" id="d" placeholder="aaaa">
+<input type="time" name="" id="">
+<input type="datetime" name="" id="">
+{{column_time(1,2,3)}}
+  <!-- The Modal -->
+  <div class="modal" id="myModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Modal Heading</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        
+        <!-- Modal body -->
+        <div class="modal-body">
+          Modal body..
+        </div>
+        
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+  
 </div>
-{% endblock badge %}
+{% endblock body %}
 

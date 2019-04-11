@@ -1,37 +1,42 @@
 {% extends "application.html" %}
-{% from "macro/test_form.html" import coloumn_range5, column_boolean, column_inputbox, test_call %}
+{% from "macro/column_input_forms.html" import coloumn_range5, column_boolean, column_inputbox, column_time %}
 
-{% block box %}
-        <i class="fas fa-user ml-3 dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown">user</i>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="#">서브메뉴 1</a>
-          <a class="dropdown-item" href="#">서브메뉴 2</a>
-          <a class="dropdown-item" href="#">서브메뉴 3</a>
-        </div>
-{% endblock box %}
-<!--  QQQ log table에 인풋 -->
+
 
 {% block body %}
-<form action="/test" method="POST">
-{% set il = namespace() %}
-{% set il.val = 1 %}
-{% if ucol %}
-  {% for ii in ucol %}
-    {{ii.col_type}}
-      {% if ii.col_type == 1 %}
-        {{coloumn_range5(ii.col_name, il.val, ii.id)}}
-        {% set il.val = il.val + 1%}
-      {% elif ii.col_type == 2 %}
-        {{column_inputbox(ii.col_name, il.val, ii.id)}}
-        {% set il.val = il.val + 1%}
-      {% elif ii.col_type == 3 %}
-        {{column_boolean(ii.col_name, il.val, ii.id)}}
-        {% set il.val = il.val + 1%}
-      {% endif %}
-  {% endfor %}
-{% endif %}
+<div class="container">
+  <h2>Modal Example</h2>
+  <!-- Button to Open the Modal -->
 
-<!-- QQQ 버튼 중앙에 위치시키기  -->
-  <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+  <input type="datetime" name="test" id="d" placeholder="aaaa">
+<input type="time" name="" id="">
+<input type="datetime" name="" id="">
+{{column_time(1,2,3)}}
+  <!-- The Modal -->
+  <div class="modal" id="myModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Modal Heading</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        
+        <!-- Modal body -->
+        <div class="modal-body">
+          Modal body..
+        </div>
+        
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+  
+</div>
 {% endblock body %}
+

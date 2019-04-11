@@ -121,16 +121,16 @@ position:absolute;
       </a>
    
       <div class="list-group list-group-flush">
-          {% block sidebar1 %} 
+        
         <a href="#" class="list-group-item active waves-effect">
-            <i class="fas fa-user-friends mr-3"></i>나의 환자 보기 </a> {% endblock sidebar1 %}
-            {% block sidebar2 %}
-        <a href="#" class="list-group-item list-group-item-action waves-effect">
-           <i class="fas fa-table mr-3"></i>로그 보기</a>{% endblock sidebar2 %}
+            <i class="fas fa-user-friends mr-3"></i>  {% block sidebar1 %} text{% endblock sidebar1 %}</a> 
           
-        {% block sidebar3 %} 
         <a href="#" class="list-group-item list-group-item-action waves-effect">
-            <i class="fas fa-cog mr-3"></i> 설정 </a> {% endblock sidebar3 %}
+           <i class="fas fa-table mr-3"></i>  {% block sidebar2 %}text{% endblock sidebar2 %}</a>
+          
+ 
+        <a href="#" class="list-group-item list-group-item-action waves-effect">
+            <i class="fas fa-cog mr-3"></i>        {% block sidebar3 %} text {% endblock sidebar3 %}</a>
           
         <!-- <a href="#" class="list-group-item list-group-item-action waves-effect">
           <i class="fas fa-map mr-3"></i>Maps</a>
@@ -180,6 +180,11 @@ position:absolute;
       <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
           Open modal
         </button>
+      
+{% block badge %}
+
+{% endblock badge %}
+
       
       {% block body %}  
       <!--Grid row-->
@@ -714,7 +719,30 @@ position:absolute;
       }
     });
 
+    function send_ajax(url, method, data, dataType, fn) {
+            $.ajax({
+                url: url,
+                data: data,
+                type: method,
+                dataType: dataType
+
+            }).done(function (res) {
+                if (fn)
+                    fn(res)
+
+            }).fail(function (xhr, status, errorThrown) {
+                console.error("Sorry, there was a problem!", xhr, status, errorThrown);
+
+            }).always(function (xhr, status) {
+                console.log("The request is complete!");
+            });
+        }
+
+
+
   </script>
+
+
 </body>
 
 </html>

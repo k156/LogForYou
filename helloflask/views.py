@@ -1,10 +1,12 @@
 from helloflask import app
-from flask import render_template, request, session, redirect, flash, Response, make_response
-from helloflask.models import Patient, Doctor, Pat_Usercol, UsercolMaster, Log
+from flask import render_template, request, session, redirect, flash, Response, make_response, jsonify
+from helloflask.models import Patient, Doctor, Pat_Usercol, UsercolMaster, Log, Discode, DisCode_Usercol
 from sqlalchemy import func
 from sqlalchemy.sql import select, insert
 from helloflask.init_db import db_session
 from sqlalchemy.orm import joinedload
+
+from pprint import pprint
 
 from datetime import date, datetime, timedelta
 
@@ -147,12 +149,44 @@ def write_log():
     return make_response(custom_res)
 
 
-@app.route('/test')
-def test():
-    return render_template('test.html')
+@app.route('/register')
+def register():
+    # email = request.form.get('email')
+    # password = request.form.get('password')
+    # password2 = request.form.get('password2')
+    # username = request.form.get('username')
+    dc_list = Discode.query.all()
+
+        # try:
+        #     db_session.(u)
+        #     db_session.commit()
+
+        # except:
+        #     db_session.rollback()
+
+        # flash("%s 님, 가입을 환영합니다!" % username)
+        # return redirect("/sign_in")
+
+    return render_template('test.html', ret=dc_list)
 
 @app.route('/test', methods=['POST'])
 def test_post():
-    r = request.form.get('3')
-    print(r)
-    return render_template('test.html')    
+
+    
+
+    discode = request.form.get('discode')
+    discode = '311' # QQQ 나중에 db 완성되면 지우기
+
+    column_list = db_session.query(UsercolMaster).join(DisCode_Usercol, UsercolMaster.id == DisCode_Usercol.usercol_id).filter(DisCode_Usercol.discode_id == discode).all()
+    
+    result = {}
+
+    result['rs'] = []
+
+    for cl in column_list:
+        result['rs'].append(cl.get_json())
+
+    return jsonify(result)
+
+
+

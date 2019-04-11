@@ -1,0 +1,49 @@
+{% macro Signup() %}
+
+<style>
+    .modal-backdrop {
+  z-index: -1;
+} 
+/* 임시로 모달 밖으로 꺼내 놓은 것. QQQ 제대로 바꾸기 */
+
+</style>
+<!-- The Modal -->
+<div class="modal" id="myModal">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+        
+        <!-- Modal Header -->
+        <div class="modal-header">
+            <h1 class="modal-title">{% block heading %} 사용자 약관 동의 {% endblock heading %}</h1>
+            <button type="button" class="close" data-dismiss="modal">×</button>
+        </div>
+        
+        <!-- Modal body -->
+        <div class="modal-body">
+
+            <h3>사용자 약관</h3>
+            <p>사용자 약관 내용 </p>
+        </div>
+        
+        <!-- Modal footer -->
+        <div class="modal-footer">
+            <form action="">
+               <input type="checkbox" name="agree" value="agree"> 사용자 약관을 읽었으며, 동의합니다. </input>
+              </form>
+            <p3>저는:</3>
+            <!-- <div class="row">
+                <div class="column"> -->
+                    <button type="button" class = "btn btn-primary" onclick="alert('Hello world!')">의사입니다.</button>
+                <!-- </div>
+                <div class="column"> -->
+                    <form action="/sign_up.html">
+                    <button id= 'pat_sign_up' type="button" class = "btn btn-primary" onclick="loadSign_up()">환자입니다.</button>
+                    </form>
+                <!-- </div> -->
+        </div>
+        
+        </div>
+    </div>
+</div>
+{% endmacro %}
+

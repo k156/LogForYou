@@ -59,3 +59,82 @@
 {% macro test_call(name) %}
 <div>{{name}} {{caller(x='sss')}}</div>
 {% endmacro %}
+
+
+
+<!-- 의사가 환자 discode, usercol 선택하고 등록하는 매크로 -->
+{% macro coloumn_range(num, typeid, list) %}
+<div class="card mb-4 wow fadeIn">
+    <!--Card content-->
+    <div class="card-body d-sm-flex justify-content-between">
+        <h4 class="mb-2 mb-sm-0 pt-1">
+            <span>질병코드</span>
+        </h4>
+        <div class="form-group col-10">
+            <select class="form-control" id="exampleFormControlSelect1" name='discode' value="" onclick="ttt(this.value)">
+                <option value = "0">전체</option>
+                {% for l in list %}
+                <option value= "{{l.id}}">{{l.code, l.disease}}</option>
+                {% endfor %}
+            </select>
+        </div>  
+    </div>
+</div>
+{% endmacro %}
+
+(url, method, data, dataType, fn)
+{% macro modal1(list) %}
+<div class="container">
+    <h2>Modal Example</h2>
+    <!-- Button to Open the Modal -->
+  
+    <input type="datetime" name="test" id="d" placeholder="aaaa">
+    <input type="time" name="" id="">
+    <input type="datetime" name="" id="">
+  
+    <!-- The Modal -->
+    <div class="modal" id="myModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          
+          <!-- Modal Header -->
+          <div class="modal-header">
+            <h4 class="modal-title">Modal Heading</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+          
+          <!-- Modal body -->
+          <div class="modal-body">
+            Modal body..
+            <span class="badge badge-pill badge-primary mb-0 ml-3 waves-effect waves-effect"> <i class="close fas fa-times"></i></span>
+            {{coloumn_range(1,2, list)}}
+          </div>
+          
+          <!-- Modal footer -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  
+  <script>
+
+        function ttt(value) {
+        var url = "/test";
+        console.log("url>>", url, value)
+        
+        
+        send_ajax(url, 'POST', {discode_id: value}, 'json', function (res) {
+            console.log("res>>", res, res.result, res.result === 'OK')
+            if (res && res.result === 'OK') {
+                console.log('0-------------------------------------->', res)
+            }
+        }); 
+    }
+
+    </script>
+{% endmacro %}

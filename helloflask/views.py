@@ -1,5 +1,5 @@
 from helloflask import app
-from flask import render_template, request, session, redirect, flash
+from flask import render_template, request, session, redirect, flash, Response, make_response
 from helloflask.models import Patient, Doctor, Pat_Usercol, UsercolMaster, Log
 from sqlalchemy import func
 from sqlalchemy.sql import select, insert
@@ -17,6 +17,13 @@ def dated_url_for(endpoint, **values):
             values['q'] = int(os.stat(file_path).st_mtime)
     return url_for(endpoint, **values)
 
+def login_check():
+    if session['loginUser'] == None:
+        return redirect('/sign_in')
+    else:
+        custom_res = Response("Custom Response", 200, {'test': 'ttt'})
+        return make_response(custom_res)
+
 app.config.update(
 	SECRET_KEY='X1243yRH!mMwf',
 	SESSION_COOKIE_NAME='pyweb_flask_session',
@@ -29,9 +36,13 @@ def main():
         return redirect('/sign_in')
     return render_template("main.html")
 
+
+
 @app.route('/sign_in', methods=['GET'])
 def show_sign_in():
     return render_template("form_extended.html")
+
+
 
 @app.route('/sign_in', methods=['POST'])
 def sign_in():
@@ -56,6 +67,8 @@ def sign_in():
         flash("해당 사용자가 없습니다!!")
         return render_template("form_extended.html")
 
+
+
 @app.route('/logout')
 def logout():
     if session.get('loginUser'):
@@ -63,9 +76,13 @@ def logout():
     
     return redirect('/sign_in')
 
+
+
 @app.route('/sign_up', methods=['GET'])
 def show_sign_up():
     return render_template("sign_up_html.html")
+
+
 
 @app.route('/sign_up', methods=['POST'])
 def sign_up():
@@ -90,77 +107,53 @@ def sign_up():
         flash("%s 님, 가입을 환영합니다!" % username)
         return redirect("/sign_in")
 
-@app.route('/test')
-def test():
-    # QQQ 가로그인 처리
-    u = Patient.query.filter(Patient.email == "a@com" and Patient.password ==  func.sha2("a", 256)).first()
-    # if session.get('loginUser') == None:
-    #     return redirect('/sign_in')
-
-    ret2 = db_session.query(UsercolMaster).join(Pat_Usercol, UsercolMaster.id == Pat_Usercol.usercol_id).join(Patient, Patient.id == Pat_Usercol.pat_id).filter(Patient.id == 1).all()
-
-    # ret2 = Pat_Usercol.usercol
-    # print()
-
-    # ret2 = db_session.query(UsercolMaster).all()
-    # ret2 = db_session.query(Pat_Usercol).filter(Pat_Usercol.pat_id == '1').all()
-
-    for i in ret2:
-        print(i)
-        print(i.id)
-    return render_template("test.html", uname=u.name, ucol=ret2) 
-
-@app.route('/test', methods=['POST'])
-def test_input():
-    # from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, DATE
-    # metadata = MetaData()
-    # users = Table('Log', metadata,
-    #                 Column('id', Integer, primary_key=True),
-    #                 Column('pat_id', String),
-    #                 Column('date', DATE),
-    #                 Column('usercol_id', String),
-    #                 Column('value', String))
-
-    s = db_session()
-    lst = request.form
-    print(">>>>>", len(lst))
-    lst1 = []
-    for ll in lst:
-        print(ll)
-        v = request.form.get(ll)
-        print("v", v)
-        l = Log(1, ll, v)
-        lst1.append(l.get_json())
-
-    print(lst1)
 
 
+@app.route('/log/write')
+def show_log_input_forms():
+    # check login
+    login_check()
+
+    uid = session['loginUser']["userid"]
+
+    # petient column information
+    ret = db_session.query(UsercolMaster).join(Pat_Usercol, UsercolMaster.id == Pat_Usercol.usercol_id).join(Patient, Patient.id == Pat_Usercol.pat_id).filter(Patient.id == uid).all()
+
+    return render_template("log.html", uname=session['loginUser']["name"], ucol=ret) 
+
+
+
+@app.route('/log/write', methods=['POST'])
+def write_log():
+
+    pat_id = session['loginUser']['userid']
+    request_list = request.form
+    lst = []
+
+    for req in request_list:
+        data = request.form.get(req)
+        l = Log(pat_id, req, data)
+        lst.append(l.get_json())
+    
+    # Log table에 executemany
     try:
         db_session.bulk_insert_mappings(Log,lst1)
-        print("bbbb>>>>>>>>>>>>>")
         db_session.commit()
-    except:
-        print("cccc")
+        custom_res = Response("Custom Response", 200, {'message': 'success'})
+
+    except SQLAlchemyError as sqlerr:
         db_session.rollback()
-
+        custom_res = Response("Custom Response", 500, {'message': sqlerr})
     
-    # print(lst1)
-
-    # # for i in lst1:
-    # #     print("<<<", type(i))
-    # #     if i.col_name:
-    # #         print("<<<", i['col_name'])
-        
-    # s = db_session()
-    # s.execute(users.insert(),lst1)
-    
-    # db_session.execute()
-    # Log.metadata.execute()
-
-    # Log.query.execute(insert(), lst1)
-    
-    
-
-    return "OK"
+    return make_response(custom_res)
 
 
+@app.route('/test')
+def test():
+    return render_template('test.html')
+
+@app.route('/test', methods=['POST'])
+def test_post():
+    r = request.form.get('3')
+    print(r)
+    return render_template('test.html')    

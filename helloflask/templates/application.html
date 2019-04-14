@@ -86,11 +86,14 @@ position:absolute;
           <!-- Right -->
           <ul class="navbar-nav nav-flex-icons">
             <li class="nav-item">
-                <strong id="user_name"></strong>{% block username %} ㅇㅇㅇ선생님{% endblock username %}</a> <!-- (이름)선생님 -->
+                <strong id="user_name"></strong>{% block username %} {{uname}} 선생님{% endblock username %}</a> <!-- (이름)선생님 -->
                 <span class="user_name dropdown">
-                    {% block box %}
-                  <i class="fas fa-user ml-3" a href="localhost5000/sign_in" target="_self" onclick="clickcr(this, 'nmy.idname', '', '', event);My.movePage('localhost5000/sign_in');return false;"></i>
-                  {% endblock box %}
+                    <i class="fas fa-user ml-3 dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown">user</i>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                      <a class="dropdown-item" href="#">서브메뉴 1</a>
+                      <a class="dropdown-item" href="#">서브메뉴 2</a>
+                      <a class="dropdown-item" href="/logout">로그아웃</a>
+                    </div>
                 </span>  <!--QQQ href 주소 '자기 정보 수정'페이지로. onclickr 수정.MymovePage 수정-->
               
                 <!-- <span class="user_name"><a href="localhost5000/sign_in" target="_self" onclick="clickcr(this, 'nmy.idname', '', '', event);My.movePage('https://nid.naver.com/user2/api/route.nhn?m=routePcProfileModification');return false;"><strong id="user_name"></strong>선생님 안녕하세요!</a></span>  
@@ -118,16 +121,16 @@ position:absolute;
       </a>
    
       <div class="list-group list-group-flush">
-          {% block sidebar1 %} 
+        
         <a href="#" class="list-group-item active waves-effect">
-            <i class="fas fa-user-friends mr-3"></i>나의 환자 보기 </a> {% endblock sidebar1 %}
-            {% block sidebar2 %}
-        <a href="#" class="list-group-item list-group-item-action waves-effect">
-           <i class="fas fa-table mr-3"></i>로그 보기</a>{% endblock sidebar2 %}
+            <i class="fas fa-user-friends mr-3"></i>  {% block sidebar1 %} text{% endblock sidebar1 %}</a> 
           
-        {% block sidebar3 %} 
         <a href="#" class="list-group-item list-group-item-action waves-effect">
-            <i class="fas fa-cog mr-3"></i> 설정 </a> {% endblock sidebar3 %}
+           <i class="fas fa-table mr-3"></i>  {% block sidebar2 %}text{% endblock sidebar2 %}</a>
+          
+ 
+        <a href="#" class="list-group-item list-group-item-action waves-effect">
+            <i class="fas fa-cog mr-3"></i>        {% block sidebar3 %} text {% endblock sidebar3 %}</a>
           
         <!-- <a href="#" class="list-group-item list-group-item-action waves-effect">
           <i class="fas fa-map mr-3"></i>Maps</a>
@@ -142,6 +145,7 @@ position:absolute;
   </header>
   <!--Main Navigation-->
 
+  {% block main %}
   <!--Main layout-->
   <main class="pt-5 mx-lg-5">
     <div class="container-fluid mt-5">
@@ -172,6 +176,14 @@ position:absolute;
       </div>
       {% endblock heading %}  
       <!-- Heading -->
+
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+          Open modal
+        </button>
+      
+{% block badge %}
+
+{% endblock badge %}
 
       
       {% block body %}  
@@ -412,6 +424,7 @@ position:absolute;
     </div>
   </main>
   {% endblock body %}  
+  {% endblock main %}
   <!--Main layout-->
 
   <!--Footer-->
@@ -706,7 +719,30 @@ position:absolute;
       }
     });
 
+    function send_ajax(url, method, data, dataType, fn) {
+            $.ajax({
+                url: url,
+                data: data,
+                type: method,
+                dataType: dataType
+
+            }).done(function (res) {
+                if (fn)
+                    fn(res)
+
+            }).fail(function (xhr, status, errorThrown) {
+                console.error("Sorry, there was a problem!", xhr, status, errorThrown);
+
+            }).always(function (xhr, status) {
+                console.log("The request is complete!");
+            });
+        }
+
+
+
   </script>
+
+
 </body>
 
 </html>

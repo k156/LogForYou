@@ -133,10 +133,9 @@ def write_log():
         data = request.form.get(req)
         l = Log(pat_id, req, data)
         lst.append(l.get_json())
-    
     # Log table에 executemany
     try:
-        db_session.bulk_insert_mappings(Log,lst1)
+        db_session.bulk_insert_mappings(Log,lst)
         db_session.commit()
         custom_res = Response("Custom Response", 200, {'message': 'success'})
 
@@ -149,27 +148,15 @@ def write_log():
 
 @app.route('/register')
 def register():
-    # email = request.form.get('email')
-    # password = request.form.get('password')
-    # password2 = request.form.get('password2')
-    # username = request.form.get('username')
     dc_list = Discode.query.all()
 
-        # try:
-        #     db_session.(u)
-        #     db_session.commit()
+    usercol_list = UsercolMaster.query.all()
 
-        # except:
-        #     db_session.rollback()
 
-        # flash("%s 님, 가입을 환영합니다!" % username)
-        # return redirect("/sign_in")
-
-    return render_template('test.html', ret=dc_list)
+    return render_template('test.html', ret=dc_list, ret1=usercol_list)
 
 @app.route('/test', methods=['POST'])
 def test_post():
-
     
 
     discode = request.form.get('discode')
@@ -188,3 +175,25 @@ def test_post():
 
 
 
+@app.route("/test_input", methods=['POST'])
+def column_input():
+    
+    request_list = request.form
+    lst = []
+    pat_id = 1  # QQQQQ 지우기
+
+    for req in request_list.values():
+        p = Pat_Usercol(pat_id, req)
+        lst.append(p.get_json())
+    
+    try:
+        db_session.bulk_insert_mappings(Pat_Usercol,lst)
+        db_session.commit()
+        custom_res = jsonify({'message': 'success'})
+
+    except SQLAlchemyError as sqlerr:
+        db_session.rollback()
+        print("Error", sqlerr)
+        custom_res = jsonify({'message': sqlerr})
+
+    return make_response(custom_res)

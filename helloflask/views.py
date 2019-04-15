@@ -1,7 +1,13 @@
 from helloflask import app
-from flask import render_template, request, session, redirect, flash
-from helloflask.models import Patient, Doctor
+from flask import render_template, request, session, redirect, flash, Response, make_response, jsonify
+from helloflask.models import Patient, Doctor, Pat_Usercol, UsercolMaster, Log, Discode, DisCode_Usercol
+from sqlalchemy import func
+from sqlalchemy.sql import select, insert
 from helloflask.init_db import db_session
+from sqlalchemy.orm import joinedload
+
+from pprint import pprint
+
 from datetime import date, datetime, timedelta
 
 def dated_url_for(endpoint, **values):
@@ -13,6 +19,13 @@ def dated_url_for(endpoint, **values):
             values['q'] = int(os.stat(file_path).st_mtime)
     return url_for(endpoint, **values)
 
+def login_check():
+    if session['loginUser'] == None:
+        return redirect('/sign_in')
+    else:
+        custom_res = Response("Custom Response", 200, {'test': 'ttt'})
+        return make_response(custom_res)
+
 app.config.update(
 	SECRET_KEY='X1243yRH!mMwf',
 	SESSION_COOKIE_NAME='pyweb_flask_session',
@@ -21,13 +34,15 @@ app.config.update(
 
 @app.route('/')
 def main():
-    if session.get('loginUser') == None:
-        return redirect('/sign_in')
     return render_template("main.html")
+
+
 
 @app.route('/sign_in', methods=['GET'])
 def show_sign_in():
     return render_template("form_extended.html")
+
+
 
 @app.route('/sign_in', methods=['POST'])
 def sign_in():
@@ -36,9 +51,9 @@ def sign_in():
     table = request.form.get('table')
 
     if table == 'patient':
-        u = Patient.query.filter('email = :email and password = sha2(:passwd, 256)').params(email=email, passwd=passwd).first()
+        u = Patient.query.filter(Patient.email == email and Patient.password == func.sha2(passwd, 256)).first()
     else:
-        u = Doctor.query.filter('email = :email and password = sha2(:passwd, 256)').params(email=email, passwd=passwd).first()
+        u = Doctor.query.filter(Doctor.email == email and Doctor.password == func.sha2(passwd, 256)).first()
 
     if u is not None:
         session['loginUser'] = { 'userid': u.id, 'name': u.name }
@@ -60,9 +75,7 @@ def logout():
     
     return redirect('/sign_in')
 
-@app.route('/test')
-def test():
-    return render_template("test.html")
+
 
     
 @app.route('/sign_up', methods=['GET'])
@@ -77,6 +90,7 @@ def sign_up():
     password2 = request.form.get('password2')
     username = request.form.get('username')
 
+    print(email, username)
     if password != password2:
         flash("암호를 정확히 입력하세요!!")
         return render_template("sign_up.html", email=email, username=username)
@@ -84,13 +98,102 @@ def sign_up():
         u = Patient(email, password, username, True)
         try:
             db_session.add(u)
-            db_session.commit()        
-            flash("%s 님, 가입을 환영합니다!" % username)
-            return redirect("/sign_in")
-        
+            db_session.commit()
+
         except:
             db_session.rollback()
-            flash ("정보를 다시 확인해주세요.")
-            return render_template("sign_up.html", email=email, username=username)
+
+        flash("%s 님, 가입을 환영합니다!" % username)
+        return redirect("/sign_in")
 
 
+
+@app.route('/log/write')
+def show_log_input_forms():
+    # check login
+    login_check()
+
+    uid = session['loginUser']["userid"]
+
+    # petient column information
+    ret = db_session.query(UsercolMaster).join(Pat_Usercol, UsercolMaster.id == Pat_Usercol.usercol_id).join(Patient, Patient.id == Pat_Usercol.pat_id).filter(Patient.id == uid).all()
+
+    return render_template("log.html", uname=session['loginUser']["name"], ucol=ret) 
+
+
+
+@app.route('/log/write', methods=['POST'])
+def write_log():
+
+    pat_id = session['loginUser']['userid']
+    request_list = request.form
+    lst = []
+
+    for req in request_list:
+        data = request.form.get(req)
+        l = Log(pat_id, req, data)
+        lst.append(l.get_json())
+    # Log table에 executemany
+    try:
+        db_session.bulk_insert_mappings(Log,lst)
+        db_session.commit()
+        custom_res = Response("Custom Response", 200, {'message': 'success'})
+
+    except SQLAlchemyError as sqlerr:
+        db_session.rollback()
+        custom_res = Response("Custom Response", 500, {'message': sqlerr})
+    
+    return make_response(custom_res)
+
+
+@app.route('/register')
+def register():
+    dc_list = Discode.query.all()
+
+    usercol_list = UsercolMaster.query.all()
+
+
+    return render_template('test.html', ret=dc_list, ret1=usercol_list)
+
+@app.route('/test', methods=['POST'])
+def test_post():
+    
+
+    discode = request.form.get('discode')
+    discode = '311' # QQQ 나중에 db 완성되면 지우기
+
+    column_list = db_session.query(UsercolMaster).join(DisCode_Usercol, UsercolMaster.id == DisCode_Usercol.usercol_id).filter(DisCode_Usercol.discode_id == discode).all()
+    
+    result = {}
+
+    result['rs'] = []
+
+    for cl in column_list:
+        result['rs'].append(cl.get_json())
+
+    return jsonify(result)
+
+
+
+@app.route("/test_input", methods=['POST'])
+def column_input():
+    
+    request_list = request.form
+    lst = []
+    pat_id = 1  # QQQQQ 지우기
+
+    for req in request_list.values():
+        p = Pat_Usercol(pat_id, req)
+        lst.append(p.get_json())
+    
+    try:
+        db_session.bulk_insert_mappings(Pat_Usercol,lst)
+        db_session.commit()
+        custom_res = jsonify({'message': 'success'})
+
+    except SQLAlchemyError as sqlerr:
+        db_session.rollback()
+        print("Error", sqlerr)
+        custom_res = jsonify({'message': sqlerr})
+
+    return make_response(custom_res)

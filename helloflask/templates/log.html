@@ -1,0 +1,33 @@
+{% extends "application.html" %}
+{% from "macro/column_input_forms.html" import coloumn_range5, column_boolean, column_inputbox, column_time %}
+
+<!--  QQQ log table에 인풋 -->
+{% block heading %}
+{% endblock heading %}
+
+
+<!-- patient input form -->
+{% block body %}
+<form action="/log/write" method="POST">
+{% set il = namespace() %}
+{% set il.val = 1 %}
+{% if ucol %}
+  {% for ii in ucol %}
+      {% if ii.col_type == 1 %}
+        {{coloumn_range5(ii.col_name, il.val, ii.id)}}
+        {% set il.val = il.val + 1%}
+      {% elif ii.col_type == 2 %}
+        {{column_inputbox(ii.col_name, il.val, ii.id)}}
+        {% set il.val = il.val + 1%}
+      {% elif ii.col_type == 3 %}
+        {{column_boolean(ii.col_name, il.val, ii.id)}}
+        {% set il.val = il.val + 1%}
+      {% endif %}
+  {% endfor %}
+{% endif %}
+{{column_time(1,2,3)}}
+
+<!-- QQQ 버튼 중앙에 위치시키기  -->
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{% endblock body %}

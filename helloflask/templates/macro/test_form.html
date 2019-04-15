@@ -71,7 +71,7 @@
             <span>질병코드</span>
         </h4>
         <div class="form-group col-10">
-            <select class="form-control" id="exampleFormControlSelect1" name='discode' value="" onclick="ttt(this.value)">
+            <select class="form-control" id="{{num}}" name='discode' value="" onclick="ttt(this.value)">
                 <option value = "0">전체</option>
                 {% for l in list %}
                 <option value= "{{l.id}}">{{l.code, l.disease}}</option>
@@ -83,7 +83,7 @@
 {% endmacro %}
 
 (url, method, data, dataType, fn)
-{% macro modal1(list) %}
+{% macro modal1(list, list1) %}
 <div class="container">
     <h2>Modal Example</h2>
     <!-- Button to Open the Modal -->
@@ -106,13 +106,20 @@
           <!-- Modal body -->
           <div class="modal-body">
             Modal body..
-            <span class="badge badge-pill badge-primary mb-0 ml-3 waves-effect waves-effect"> <i class="close fas fa-times"></i></span>
             {{coloumn_range(1,2, list)}}
+            <!-- {{coloumn_range(2,2, list1)}} QQQ. list1은 usercol_master에서 읽어온 유저컬럼을 뿌리기 위한 리스트. 이 부분 처리해야함. -->
+
+            <div class="container">
+                <div class="row" id="badge">
+                    기본입니다.
+                </div>
+            </div>
           </div>
           
           <!-- Modal footer -->
           <div class="modal-footer">
-            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-danger waves-effect waves-light" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary waves-effect waves-light" data-dismiss="modal" onclick="get_complete_columns()">제출</button>
           </div>
           
         </div>
@@ -120,21 +127,76 @@
     </div>
     
   </div>
-  
-  <script>
+
+
+{% raw %}
+<script id= "badge-template" type = "text/x-handlebars-template">
+    <div class="badge">
+        {{#each rs}}
+        <div class="col" id = "{{id}}" >
+            <span class="badge badge-pill badge-primary mb-0 ml-3 waves-effect waves-effect" name="{{id}}" value="{{id}}">{{col_name}}<i class="close fas fa-times"  value="{{id}}" onclick="remove_element(this.parentNode.parentNode.id)"></i></span>
+        </div>
+        {{/each}}
+    </div>
+</script>
+{% endraw %}
+
+<script >
 
         function ttt(value) {
         var url = "/test";
         console.log("url>>", url, value)
-        
-        
+         
         send_ajax(url, 'POST', {discode_id: value}, 'json', function (res) {
             console.log("res>>", res, res.result, res.result === 'OK')
+            hbs("badge-template", res, 'badge');
+
             if (res && res.result === 'OK') {
                 console.log('0-------------------------------------->', res)
             }
         }); 
     }
 
-    </script>
+    function hbs(sourceId, data, resultId) {
+        var source = document.getElementById(sourceId).innerHTML;
+        var template = Handlebars.compile(source);
+        var html = template(data);
+        document.getElementById(resultId).innerHTML = html;
+    }
+    
+    function remove_element(value) {
+        var id = "#" + value
+        $(id).remove();
+    }
+
+
+    function get_complete_columns() {
+        var url = "/test_input"
+        data = {};
+        jsonObj = [];
+        data['result'] = jsonObj
+        $('div.col').each(function() {
+            var id = $(this).attr('id');
+
+            l = {"col_id" : id}
+
+            jsonObj.push(l);
+
+        })
+
+        console.log(jsonObj); 
+        console.log(">>>>>>>>", data, url); 
+
+        send_ajax(url, 'POST', data, 'json');
+    }
+
+</script>
+
+
+
 {% endmacro %}
+
+
+
+
+

@@ -1,10 +1,8 @@
-{% extends "form.html" %}
+{% extends "application.html" %}
+{% from "macro/test_form.html" import coloumn_range5, column_boolean, column_inputbox, coloumn_range, modal1 %}
 
-{% block box %}
-        <i class="fas fa-user ml-3 dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown">user</i>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="#">Action</a>
-          <a class="dropdown-item" href="#">Another action</a>
-          <a class="dropdown-item" href="#">Something else here</a>
-        </div>
-{% endblock box %}
+
+
+{% block body %}
+{{modal1(ret, ret1)}}
+{% endblock body %}

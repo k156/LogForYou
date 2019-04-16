@@ -22,6 +22,7 @@ class Doctor(Base):
     def __repr__(self):
         return 'User %s, %r, %r' % (self.id, self.email, self.name)
 
+
 class Patient(Base):
     __tablename__ = 'Patients'
     id = Column(Integer, primary_key=True)
@@ -69,6 +70,9 @@ class UsercolMaster(Base):
 
     def __repr__(self):
         return 'Column %s, %s, %s, %s' % (self.id, self.col_name, self.col_desc, self.col_type)
+    
+    def get_json(self):
+        return {"col_name" : self.col_name, "col_desc" : self.col_desc, "col_type" : self.col_type}
 
 class Log(Base):
     __tablename__ = 'Log'
@@ -93,31 +97,34 @@ class Log(Base):
         return {"pat_id" : self.pat_id, "usercol_id" : self.usercol_id, "value" : self.value}
 
 
-# class Log(Base):
-#     __tablename__ = 'Log'
-#     id = Column(Integer, primary_key = True)
-#     pat_id = Column(Integer)
-#     date = Column(DATE)
-#     usercol_id = Column(Integer)
-#     value = Column(String)
-#     # pat_usercol = relationship('Pat_Usercol')
+class Discode(Base):
+    __tablename__ = 'DisCode'
+    id = Column(Integer, primary_key = True)
+    code = Column(String) 
+    disease = Column(String)
+    sci_name = Column(String)
 
-#     table = Table('Log', MetaData(),
-#                     Column('id', Integer, primary_key=True),
-#                     Column('pat_id', String),
-#                     Column('date', DATE),
-#                     Column('usercol_id', String),
-#                     Column('value', String))
 
-#     def __init__(self, pat_id, date, usercol_id, value):
-#         self.pat_id = pat_id
-#         self.date = date
-#         self.usercol_id = usercol_id 
-#         self.value = value
+    def __init__(self, code, disease, sci_name):
+        self.code = code
+        self.disease = disease
+        self.sci_name = sci_name
+
+    def __repr__(self):
+        return 'Discode %s, %s, %s' % (self.code, self.disease, self.sci_name)
+
+class DisCode_Usercol(Base):
+    __tablename__ = 'DisCode_Usercol'
+    id = Column(Integer, primary_key = True)
+    discode_id = Column(Integer)
+    usercol_id = Column(Integer)
+
+    def __init__(self, discode_id, usercol_id):
+        self.discode_id = discode_id
+        self.usercol_id = usercol_id
     
-#     def __repr__(self):
-#         return 'Log %s, %s, %s, %s' % (self.pat_id, self.date, self.usercol_id, self.value)
-    
-#     def get_json(self):
-#         return {"pat_id" : self.pat_id, "date" : self.date, "usercol_id" : self.usercol_id, "value" : self.value}
+    def __repr__(self):
+        return 'DisCode_Usercol %s, %s' % (self.discode_id, self.usercol_id)
 
+    def get_json(self):
+        return {"discode_id" : self.discode_id, "usercol_id" : self.usercol_id}

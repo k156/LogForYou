@@ -8,7 +8,7 @@
 
 <!-- patient input form -->
 {% block body %}
-<form action="/test" method="POST">
+<form action="/log/write" method="POST">
 {% set il = namespace() %}
 {% set il.val = 1 %}
 {% if ucol %}

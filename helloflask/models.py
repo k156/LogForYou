@@ -54,6 +54,14 @@ class Pat_Usercol(Base):
     pat = relationship('Patient')
     usercol = relationship('UsercolMaster')
 
+
+    def __init__(self, pat_id, usercol_id):
+        self.pat_id = pat_id
+        self.usercol_id = usercol_id
+    
+    def get_json(self):
+        return {"id":self.id, "pat_id" : self.pat_id, "usercol_id" : self.usercol_id}
+
     # def __repr__(self):
     #     return 'Pat_Usercol %s, %s' % (self.pat, self.usercol)
 
@@ -72,7 +80,7 @@ class UsercolMaster(Base):
         return 'Column %s, %s, %s, %s' % (self.id, self.col_name, self.col_desc, self.col_type)
     
     def get_json(self):
-        return {"col_name" : self.col_name, "col_desc" : self.col_desc, "col_type" : self.col_type}
+        return {"id":self.id, "col_name" : self.col_name, "col_desc" : self.col_desc, "col_type" : self.col_type}
 
 class Log(Base):
     __tablename__ = 'Log'

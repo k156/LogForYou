@@ -154,13 +154,17 @@ def register():
 
     usercol_list = UsercolMaster.query.all()
 
+    print("=====================")
+    for dc in dc_list:
+        print(dc.get_json())
+        
 
-    return render_template('test.html', ret=dc_list, ret1=usercol_list)
+    return render_template('search.html', ret=dc_list, ret1=usercol_list)
+
 
 @app.route('/test', methods=['POST'])
 def test_post():
     
-
     discode = request.form.get('discode')
     discode = '311' # QQQ 나중에 db 완성되면 지우기
 
@@ -175,6 +179,33 @@ def test_post():
 
     return jsonify(result)
 
+@app.route('/patient/search', methods=['POST'])
+def search_patient():
+    pat_id = request.form.get('pat_id')
+
+    p = Patient.query.filter(Patient.id == pat_id).first()
+    r = p.name
+
+    return  render_template('search.html', result=r)
+
+@app.route('/discode', methods=['POST'])
+def get_discode():
+    dc_list = Discode.query.all()
+
+    data = {}
+
+    data['type'] = 1
+    data['result'] = []
+    
+    for dc in dc_list:
+        small_data = dc.get_json()
+        small_data['name'] = dc.get_json()['disease']
+        data['result'].append(small_data)
+
+    print(data)
+
+    return jsonify(data)
+    
 
 
 @app.route("/test_input", methods=['POST'])

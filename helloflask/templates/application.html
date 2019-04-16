@@ -19,6 +19,8 @@
   <!-- <link href="css/style.min.css" rel="stylesheet"> -->
   <link href="{{ url_for('static', filename='css/style.min.0.0.0.4.css')}}" rel="stylesheet">
 
+
+
 <!--handlebars-->
 <script type="text/javascript" src="{{ url_for('static', filename='js/handlebars.js') }}"></script>
 
@@ -167,9 +169,9 @@ position:absolute;
             <span>{% block mypt %} Dashboard{% endblock mypt %}</span>
           </h4>
 
-          <form class="d-flex justify-content-center">
+          <form class="d-flex justify-content-center" action='/patient/search', method="POST">
             <!-- Default input -->
-            <input type="search" placeholder="환자 번호 입력" aria-label="Search" class="form-control">
+            <input type="search" placeholder="환자 번호 입력" aria-label="Search" class="form-control" name="pat_id" value="">
             <button class="btn btn-primary btn-sm my-0 p" type="submit">
               <i class="fas fa-search"></i>
             </button>
@@ -182,14 +184,14 @@ position:absolute;
       {% endblock heading %}  
       <!-- Heading -->
 
-      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
-          Open modal
-        </button>
       
 {% block badge %}
 
 {% endblock badge %}
+{% block addpat %}
 
+
+{% endblock addpat %}
       
       {% block body %}  
       <!--Grid row-->
@@ -434,7 +436,7 @@ position:absolute;
 
   <!--Footer-->
   <footer class="page-footer text-center font-small primary-color-dark darken-2 mt-4 wow fadeIn">
-
+      {% block footer %}
     <!--Call to action-->
     <!-- <div class="pt-4">
       <a class="btn btn-outline-white" href="https://mdbootstrap.com/docs/jquery/getting-started/download/" target="_blank"
@@ -497,8 +499,9 @@ position:absolute;
         
     </div>
     <!--/.Copyright-->
-
+    {% endblock footer %}
   </footer>
+
   <!--/.Footer-->
 
   <!-- SCRIPTS -->

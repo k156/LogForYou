@@ -1,0 +1,38 @@
+{% extends "application.html" %}
+{% from "macro/test_form.html" import modal1 %}
+
+{% block body %}
+{% endblock body %}
+
+
+{% block sidebar1 %} 환자 보기 {% endblock sidebar1 %}
+{% block sidebar2 %}로그 보기{% endblock sidebar2 %}
+{% block sidebar3 %} 설정 {% endblock sidebar3 %}
+
+{% block addpat %}
+
+{{modal1()}}
+
+<div class="btn-group dropright">
+        <button type="button" class="btn btn-primary">{{result}}</button>
+        <button type="button" class="btn btn-primary dropdown-toggle px-3" data-toggle="dropdown" aria-haspopup="true"
+          aria-expanded="false">
+          <span class="sr-only">Toggle Dropdown</span>
+        </button>
+        <div class="dropdown-menu">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+                        모달열기
+                     </button>
+          <!-- <a class="dropdown-item" href="#">추가하기</a> -->
+          <!-- <a class="dropdown-item" href="#">Another action</a>
+          <a class="dropdown-item" href="#">Something else here</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="#">Separated link</a>
+        </div> -->
+    </div>
+
+{% endblock addpat %}
+
+
+{% block copyright %}LogForYou.com{% endblock copyright %}
+{% block email %}logforyou@gmail.com{% endblock email %}

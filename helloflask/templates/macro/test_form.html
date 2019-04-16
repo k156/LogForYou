@@ -60,10 +60,7 @@
 <div>{{name}} {{caller(x='sss')}}</div>
 {% endmacro %}
 
-
-
-<!-- 의사가 환자 discode, usercol 선택하고 등록하는 매크로 -->
-{% macro coloumn_range(num, typeid, list) %}
+{% macro column_selectbox(num) %}
 <div class="card mb-4 wow fadeIn">
     <!--Card content-->
     <div class="card-body d-sm-flex justify-content-between">
@@ -71,16 +68,17 @@
             <span>질병코드</span>
         </h4>
         <div class="form-group col-10">
-            <select class="form-control" id="{{num}}" name='discode' value="" onclick="ttt(this.value)">
+            <select class="form-control" id="{{num}}" name='discode' value="" onchange="ttt(this.value)" >
                 <option value = "0">전체</option>
                 {% for l in list %}
-                <option value= "{{l.id}}">{{l.code, l.disease}}</option>
+                <option value= "{{l.id}}">{{l.code, l.name}}</option>
                 {% endfor %}
             </select>
         </div>  
     </div>
 </div>
 {% endmacro %}
+
 
 (url, method, data, dataType, fn)
 {% macro modal1(list, list1) %}
@@ -104,11 +102,10 @@
           </div>
           
           <!-- Modal body -->
-          <div class="modal-body">
+          <div class="modal-body" id="modal-body">
             Modal body..
-            {{coloumn_range(1,2, list)}}
-            <!-- {{coloumn_range(2,2, list1)}} QQQ. list1은 usercol_master에서 읽어온 유저컬럼을 뿌리기 위한 리스트. 이 부분 처리해야함. -->
-
+            {{column_selectbox(1)}}
+            {{column_selectbox(2)}}
             <div class="container">
                 <div class="row" id="badge">
                     기본입니다.
@@ -141,9 +138,32 @@
 </script>
 {% endraw %}
 
+
+{% raw %}
+<script id="selectbox-template" type="text/x-handlebars-template">
+    <option>{{code, name}}</option>
+</script>
+{% endraw %}
+
+
 <script >
 
-        function ttt(value) {
+    // QQQ 모달창에서 셀렉트박스 만들기... 핸들바로...
+    $(document).ready( send_ajax('/discode', 'POST',"", 'json', function(res){
+        console.log("res>>", res, res.result, res.result === 'OK')
+        hbs("selectbox-template", res, '1');
+        })
+    )
+
+    function ppp() {
+        send_ajax('/discode', 'POST',"", 'json', function(res){
+        console.log("res>>", res, res.result, res.result === 'OK')
+        hbs("selectbox-template", res, '1');
+        }
+        )
+    }
+
+    function ttt(value) {
         var url = "/test";
         console.log("url>>", url, value)
          

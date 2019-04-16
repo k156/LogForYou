@@ -29,6 +29,8 @@ class Patient(Base):
     name = Column(String)
     email = Column(String, unique=True)
     password = Column(String)
+    birth = Column(String)
+    gender = Column(Integer)
     pat_usercol = relationship('Pat_Usercol')
 
     # doc_pat = relationship('Doc_Pat')
@@ -120,6 +122,9 @@ class Discode(Base):
 
     def __repr__(self):
         return 'Discode %s, %s, %s' % (self.code, self.disease, self.sci_name)
+    
+    def get_json(self):
+        return {"code" : self.code, "disease" : self.disease, "sci_name" : self.sci_name}
 
 class DisCode_Usercol(Base):
     __tablename__ = 'DisCode_Usercol'

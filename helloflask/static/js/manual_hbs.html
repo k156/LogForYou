@@ -1,0 +1,18 @@
+<script id="search-template" type="text/x-handlebars-template">
+    <div class="search">
+        <ul>
+            {{#each comments}}
+                <li>
+                    {{id_title}} - {{body}}
+                    {{#if author}}
+                        by {{fullname author}}
+                    {{/if}}
+                    {{#unless isGuest}}
+                        <button>삭제</button>
+                    {{/unless}}
+                </li>
+            {{/each}}
+        </ul>
+    </div>
+</script>
+  

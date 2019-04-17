@@ -46,6 +46,9 @@ class Patient(Base):
     def __repr__(self):
         return 'User %s, %r, %r' % (self.id, self.email, self.name)
 
+    def get_json(self):
+        return {'id' : self.id, 'name' : self.name, 'email' : self.email}
+
 class Pat_Usercol(Base):
     __tablename__ = 'Pat_Usercol'
     id = Column(Integer, primary_key = True)

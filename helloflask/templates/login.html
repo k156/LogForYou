@@ -1,0 +1,97 @@
+{% extends "form.html" %}
+{% from "macro/login_macro.html" import loginforms, Signup %}
+
+
+{% block body %}
+<!-- Full Page Intro -->
+<div class="view full-page-intro" style="background-image: url('https://mdbootstrap.com/img/Photos/Others/images/78.jpg'); background-repeat: no-repeat; background-size: cover;">
+
+  <!-- Mask & flexbox options-->
+  <div class="mask rgba-black-light d-flex justify-content-center align-items-center">
+
+    <!-- Content -->
+    <div class="container">
+
+      <!--Grid row-->
+      <div class="row wow fadeIn">
+
+        <!--Grid column-->
+        <div class="col-md-6 mb-4 white-text text-center text-md-left">
+
+          <h1 class="display-4 font-weight-bold">Learn Bootstrap 4 with MDB</h1>
+
+          <hr class="hr-light">
+
+          <p>
+            <strong>Best & free guide of responsive web design</strong>
+          </p>
+
+          <p class="mb-4 d-none d-md-block">
+            <strong>The most comprehensive tutorial for the Bootstrap 4. Loved by over 500 000 users. Video and written versions
+              available. Create your own, stunning website.</strong>
+          </p>
+
+          <a target="_blank" href="https://mdbootstrap.com/education/bootstrap/" class="btn btn-indigo btn-lg">Start free tutorial
+            <i class="fas fa-graduation-cap ml-2"></i>
+          </a>
+
+        </div>
+        <!--Grid column-->
+        <div class ="#modal">{{ Signup() }}</div>
+        <!--Grid column-->
+        <div class="col-md-6 col-xl-5 mb-4">
+
+          <!--Card-->
+          <div class="card">
+
+            <!--Card content-->
+            <div class="card-body">
+              <div class="row">
+              <div class="col-12"  id="doctor_div">
+                  <button id="d" type="button" class="btn btn-lg btn-primary" value="d" onclick="showLoginForm(this.value)">의 사 로 그 인</button>
+                  <div id="loginform_doctor" style="display:none;">{{loginforms(isDoc=true)}}</div>
+                </div>
+                <div class="col-12" id="patient_div">
+                  <button id="p" type="button" class="btn btn-lg btn-primary" value='p' onclick="showLoginForm(this.value)">환 자 로 그 인</button>
+                  <div id="loginform_patient" style="display:none;">{{loginforms(isDoc=false)}}</div>
+                </div>
+                <div class="col-12" id="signup">
+                  
+                  <button type="button" class="btn btn-lg btn-primary" data-toggle="modal" data-target="#myModal">
+                      가입하기
+                  </button>
+                </div>
+                    
+              </div>
+            </div>
+          </div>
+          <!--/.Card-->
+
+        </div>
+        <!--Grid column-->
+
+      </div>
+      <!--Grid row-->
+
+    </div>
+    <!-- Content -->
+
+  </div>
+  <!-- Mask & flexbox options-->
+
+</div>
+<!-- Full Page Intro -->
+{% endblock body %}
+ 
+{% block bottomscript %}
+
+<!-- Initializations -->
+  <script type="text/javascript">
+    // Animations initialization
+    new WOW().init();
+    </script>
+{% endblock bottomscript %}
+</body>
+</html>
+
+

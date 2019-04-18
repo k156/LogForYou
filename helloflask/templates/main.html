@@ -1,29 +1,86 @@
 {% extends "application.html" %}
+{% from "macro/main_macro.html" import search %}
 
 
+<!-- Navbar -->
+{% block navbar %}
+    
+<!-- Navbar -->
+<nav class="navbar fixed-top navbar-expand-lg navbar-light white scrolling-navbar">
+  <div class="container-fluid">
 
+    <!-- Collapse -->
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-{% block username %} <strong>{{uname}}</strong> 선생님{% endblock username %}
+    <!-- Links -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
 
+      <!-- Right -->
+      <ul class="navbar-nav nav-flex-icons">
+        <li class="nav-item">
+          {% if utype %}
+            <strong id="user_name"></strong> {{uname}} 선생님 </a> <!-- (이름)선생님 -->
+          {% else %}
+            <strong id="user_name"></strong> {{uname}} 님 </a>
+          {% endif %}
+          
+            <span class="user_name dropdown">
+                <i class="fas fa-user ml-3 dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown"> user </i>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <a class="dropdown-item" href="#">서브메뉴 1</a>
+                  <a class="dropdown-item" href="#">서브메뉴 2</a>
+                  <a class="dropdown-item" href="/logout">로그아웃</a>
+                </div>
+            </span>  <!--QQQ href 주소 '자기 정보 수정'페이지로. onclickr 수정.MymovePage 수정-->
+        </li>
+        
+          <li class="nav-item">
+              <i class="far fa-bell ml-3" class="nav-link waves-effect" target="_blank"></i> <!--QQQ 알림 왔을 때는 <i class="fas fa-bell"></i>-->
+            </span>
+          </li>
+        </li>
+      </ul>
+    </span>
+    </div>
 
-{% block box %}
-        <i class="fas fa-user ml-3 dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown">user</i>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="#">Action</a>
-          <a class="dropdown-item" href="#">Another action</a>
-          <a class="dropdown-item" href="/logout">로그아웃</a>
-        </div>
-{% endblock box %}
+  </div>
+</nav>
+{% endblock navbar %}
 
+<<<<<<< HEAD
 {% block sidebar1 %} 환자 보기 {% endblock sidebar1 %}
 {% block sidebar2 %}로그 보기{% endblock sidebar2 %}
 {% block sidebar3 %} 설정 {% endblock sidebar3 %}
+=======
+>>>>>>> master
 
+{% block dashboard %}
+<div class="card-body d-sm-flex justify-content-between">
 
-{% block mypt %}나의 환자 리스트{% endblock mypt %}
+        <h4 class="mb-2 mb-sm-0 pt-1">
+          <!-- <a href="https://mdbootstrap.com/docs/jquery/" target="_blank">Home Page</a>
+          <span>/</span> -->
+          {% block mypt %}
 
+        {% if utype %}
+        <span> 나의 환자 보기</span>
+        {% else %}
+        <span> 나의 로그 보기</span>
+        {% endif %}
+        </h4>
 
-{% block copyright %}LogForYou.com{% endblock copyright %}
+        {% if utype %}
+        {{search()}}
+        {% endif %}
 
+<<<<<<< HEAD
 {% block email %}logforyou@gmail.com{% endblock email %}
 
+=======
+        {% endblock mypt %}
+      </div>
+{% endblock dashboard %}
+>>>>>>> master

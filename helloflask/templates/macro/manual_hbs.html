@@ -23,7 +23,7 @@
                     <td>{{id}}</td>
                     <td>{{birth}}</td>
                     <td>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target='#myModal'>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target='#rgModal'>
                             추가하기
                         </button>
                     </td>
@@ -42,7 +42,7 @@
 
 {% raw %}
 <script id="mypat-template" type="text/x-handlebars-template">
-<div class="card">
+<div class="card" id = {{}}>
 
     <!--Card content-->
     <div class="card-body">
@@ -62,24 +62,15 @@
 
         <!-- Table body -->
         <tbody>
+          {{#each result}}
           <tr>
             <th scope="row">1</th>
-            <td>Cell 1</td>
-            <td>Cell 2</td>
-            <td>Cell 3</td>
+            <td>{{id}}</td>
+            <td>{{name}}</td>
+            <td>{{birth}}</td>
           </tr>
-          <tr>
-            <th scope="row">2</th>
-            <td>Cell 4</td>
-            <td>Cell 5</td>
-            <td>Cell 6</td>
-          </tr>
-          <tr>
-            <th scope="row">3</th>
-            <td>Cell 7</td>
-            <td>Cell 8</td>
-            <td>Cell 9</td>
-          </tr>
+          {{/each}}
+
         </tbody>
         <!-- Table body -->
       </table>
@@ -90,3 +81,4 @@
   </div>
 </script>
 {% endraw %}
+

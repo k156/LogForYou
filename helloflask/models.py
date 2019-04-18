@@ -49,7 +49,7 @@ class Patient(Base):
         self.name = name
 
     def __repr__(self):
-        return 'User %s, %r, %r' % (self.id, self.email, self.name)
+        return 'User %s, %s, %s, %s, %s' % (self.id, self.email, self.name, self.birth, self.g)
 
     def get_json(self):
         return {'id' : self.id, 'name' : self.name, 'email' : self.email, 'birth' : self.birth, 'gender' : self.g}
@@ -61,6 +61,16 @@ class Doc_Pat(Base):
     pat_id = Column(Integer, ForeignKey('Patients.id'))
     doc = relationship('Doctor')
     pat = relationship('Patient')
+
+    def __init__(self, id, pat_id, doc_id):
+        self.id = id
+        self.pat_id = pat_id
+        self.doc_id = doc_id
+
+    def get_json(self):
+        return {"id":self.id, "doc_id": self.doc_id, "pat_id" : self.pat_id, "doc" : self.doc, "pat" : self.pat}
+
+
 
 class Pat_Usercol(Base):
     __tablename__ = 'Pat_Usercol'

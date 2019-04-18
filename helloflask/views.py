@@ -61,16 +61,18 @@ def login():
         utype = True
 
     if u is not None:
-        session['loginUser'] = { 'userid': u.id, 'name': u.name }
+        print("313131313131")
+        session['loginUser'] = { 'userid': u.id, 'name': u.name , 'utype' : utype}
+        session['next'] = '/main'
+        print(session)
         if session.get('next'):
             next = session.get('next')
+            print(">>>>>", next)
             del session['next']
             return redirect(next)
     else:
         flash("해당 사용자가 없습니다!!")
         return redirect("/login")
-
-    return render_template('main.html', utype=utype, uname=session['loginUser']['name'])
 
 @app.route('/logout')
 def logout():
@@ -82,8 +84,20 @@ def logout():
 
 @app.route('/main')
 def main():
-    print("55555555")
-    return render_template('main.html')
+
+    s=session['loginUser']
+    print("ssss", s)
+
+    return render_template('main.html', utype=s['utype'], uname=s['name'])
+
+@app.route('/main/r')
+def read():
+
+    doc_id = session['loinUser']['id']
+
+    
+
+    return jsonify({'result': "OK"})
 
 @app.route('/main/s', methods=['POST'])
 def search():
@@ -91,6 +105,7 @@ def search():
     pat_id = request.form.get('s')
     
     p = Patient.query.filter(Patient.id == pat_id).first()
+    print(p.get_json())
 
     return jsonify(p.get_json())
 

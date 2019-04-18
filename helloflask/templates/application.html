@@ -98,9 +98,6 @@ position:absolute;
       {% endblock heading %}  
       <!-- Heading -->
 
-      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
-          Open modal
-        </button>
       
 {% block badge %}
 
@@ -109,13 +106,13 @@ position:absolute;
       
       {% block body %}  
       <!--Grid row-->
-      <div class="row wow fadeIn" id='search-result'>
+      <div class="row wow fadeIn" id='patients'>
 
         <!--Grid column-->
-        <div class="col-md-6 mb-4">
+        <div class="col-md-6 mb-4" id="main-block">
 
           <!-- Card -->
-          <div class="card">
+          <div class="card" id = "1">
 
               <!--Card content-->
               <div class="card-body">
@@ -162,13 +159,9 @@ position:absolute;
   
             </div>
           <!-- Card -->
-
-        </div>
-        <!--Grid column-->
-
-        <!--Grid column-->
-        <div class="col-md-6 mb-4">
-
+          <div class="card" id = "2"></div>
+          <div class="card" id = "3"></div>
+          <div class="card" id = "4"></div>
         </div>
         <!--Grid column-->
 
@@ -197,7 +190,11 @@ position:absolute;
    
     </div>
   </main>
-  {% endblock body %}  
+  {% endblock body %}
+
+  {% block modal %}  
+  {% endblock modal%}
+  
   {% endblock main %}
   <!--Main layout-->
 

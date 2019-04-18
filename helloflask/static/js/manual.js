@@ -51,11 +51,15 @@ function search(event) {
     var input = $input.val();
     console.log(input)
     
+    $('#main-block').remove();
+
+
     var url = '/main/s'
     send_ajax(url, 'POST', {"s":input}, 'json', 
         function(res){
             console.log(res);
-            hbs('search-template', res, 'search-result')
+            // hbs('search-template', res, 'search-result')
+            hbs('search-template', res, 'patients')
         }
     );
 }
@@ -90,6 +94,14 @@ var main_url = window.location.href
 
 $( document ).ready(function() {
     if ( main_url === "http://localhost:5000/main"){
-        send_ajax('/main/r')
+        send_ajax('/main/r', 'POST', "", "json", function(res){
+            console.log("res>>>>>", res)
+
+            hbs("mypat-template", res, "patients")
+        })
+        
     }
+
 });
+
+$()

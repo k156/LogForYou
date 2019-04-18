@@ -1,6 +1,6 @@
 from helloflask import app
 from flask import render_template, request, session, redirect, flash, Response, make_response, jsonify
-from helloflask.models import Patient, Doctor, Pat_Usercol, UsercolMaster, Log, Discode, DisCode_Usercol
+from helloflask.models import Patient, Doctor, Pat_Usercol, UsercolMaster, Log, Discode, DisCode_Usercol, Doc_Pat
 from sqlalchemy import func
 from sqlalchemy.sql import select, insert
 from helloflask.init_db import db_session
@@ -86,18 +86,23 @@ def logout():
 def main():
 
     s=session['loginUser']
-    print("ssss", s)
 
     return render_template('main.html', utype=s['utype'], uname=s['name'])
 
-@app.route('/main/r')
+@app.route('/main/r', methods=['POST'])
 def read():
 
-    doc_id = session['loinUser']['id']
+    doc_id = session['loginUser']['userid']
+    p_list = Doc_Pat.query.filter(Doc_Pat.doc_id == doc_id).all()
 
+    result = []
+
+    for p in p_list:
+        data = p.pat.get_json()
+        
+        result.append(data)
     
-
-    return jsonify({'result': "OK"})
+    return jsonify({'result': result})
 
 @app.route('/main/s', methods=['POST'])
 def search():

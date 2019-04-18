@@ -10,4 +10,68 @@
 
 
 
-<!-- onsubmit="return false;" -->
+{% macro register() %}
+
+<style>
+    .modal-backdrop {
+  z-index: -1;
+} 
+/* 임시로 모달 밖으로 꺼내 놓은 것. QQQ 제대로 바꾸기 */
+
+</style>
+  
+    <!-- The Modal -->
+    <div class="modal" id="rgModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          
+          <!-- Modal Header -->
+          <div class="modal-header">
+            <h4 class="modal-title">환자 등록하기</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+          
+          <!-- Modal body -->
+          <div class="modal-body" id="modal-body">
+            Modal body..
+            {{column_selectbox('질병코드', 1, 2)}}
+            {{column_selectbox('칼럼코드', 2, 3)}}
+            <div class="container">
+                <div class="row" id="badge">
+                    기본입니다.
+                </div>
+            </div>
+          </div>
+          
+          <!-- Modal footer -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger waves-effect waves-light" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary waves-effect waves-light" data-dismiss="modal" onclick="get_complete_columns()">제출</button>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+    
+  </div>
+
+
+{% endmacro %}
+
+
+{% macro column_selectbox(name, num, typeid) %}
+<div class="card mb-4 wow fadeIn">
+        <!--Card content-->
+        <div class="card-body d-sm-flex justify-content-between">
+            <h4 class="mb-2 mb-sm-0 pt-1">
+                <span>{{name}}</span>
+            </h4>
+            <div class="form-group col-10">
+                
+                <select class="form-control" id="{{num}}" name='{{typeid}}' value="">
+                    <option>전체</option>
+                </select>
+            </div>  
+        </div>
+    </div>
+{% endmacro %}

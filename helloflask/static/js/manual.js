@@ -1,4 +1,3 @@
-$
 
 var isDocShown = false, isPatShown = false;
     
@@ -56,7 +55,7 @@ function search(event) {
     send_ajax(url, 'POST', {"s":input}, 'json', 
         function(res){
             console.log(res);
-            hbs('search-template', res, )
+            hbs('search-template', res, 'search-result')
         }
     );
 }
@@ -86,3 +85,11 @@ function send_ajax(url, method, data, dataType, fn) {
         console.log("The request is complete!");
     });
 }
+
+var main_url = window.location.href
+
+$( document ).ready(function() {
+    if ( main_url === "http://localhost:5000/main"){
+        send_ajax('/main/r')
+    }
+});

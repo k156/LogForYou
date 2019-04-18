@@ -1,3 +1,5 @@
+{% include 'macro/manual_hbs.html' %}
+
 <!DOCTYPE html>
 <html lang="en">
   
@@ -107,114 +109,65 @@ position:absolute;
       
       {% block body %}  
       <!--Grid row-->
-      <div class="row wow fadeIn">
+      <div class="row wow fadeIn" id='search-result'>
 
         <!--Grid column-->
         <div class="col-md-6 mb-4">
 
-          <!--Card-->
+          <!-- Card -->
           <div class="card">
 
-            <!--Card content-->
-            <div class="card-body">
-
-              <!-- Table  -->
-              <table class="table table-hover">
-                <!-- Table head -->
-                <thead class="blue-grey lighten-4">
-                  <tr>
-                    <th>#</th>
-                    <th>환자번호</th>
-                    <th>환자명</th>
-                    <th>생년월일</th>
-                  </tr>
-                </thead>
-                <!-- Table head -->
-
-                <!-- Table body -->
-                <tbody>
-                  <tr>
-                    <th scope="row">1</th>
-                    <td>Cell 1</td>
-                    <td>Cell 2</td>
-                    <td>Cell 3</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">2</th>
-                    <td>Cell 4</td>
-                    <td>Cell 5</td>
-                    <td>Cell 6</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">3</th>
-                    <td>Cell 7</td>
-                    <td>Cell 8</td>
-                    <td>Cell 9</td>
-                  </tr>
-                </tbody>
-                <!-- Table body -->
-              </table>
-              <!-- Table  -->
-
+              <!--Card content-->
+              <div class="card-body">
+  
+                <!-- Table  -->
+                <table class="table table-hover">
+                  <!-- Table head -->
+                  <thead class="blue-grey lighten-4">
+                    <tr>
+                      <th>#</th>
+                      <th>환자번호</th>
+                      <th>환자명</th>
+                      <th>생년월일</th>
+                    </tr>
+                  </thead>
+                  <!-- Table head -->
+  
+                  <!-- Table body -->
+                  <tbody>
+                    <tr>
+                      <th scope="row">1</th>
+                      <td>Cell 1</td>
+                      <td>Cell 2</td>
+                      <td>Cell 3</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">2</th>
+                      <td>Cell 4</td>
+                      <td>Cell 5</td>
+                      <td>Cell 6</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">3</th>
+                      <td>Cell 7</td>
+                      <td>Cell 8</td>
+                      <td>Cell 9</td>
+                    </tr>
+                  </tbody>
+                  <!-- Table body -->
+                </table>
+                <!-- Table  -->
+  
+              </div>
+  
             </div>
-
-          </div>
-          <!--/.Card-->
+          <!-- Card -->
 
         </div>
         <!--Grid column-->
 
         <!--Grid column-->
         <div class="col-md-6 mb-4">
-
-          <!--Card-->
-          <div class="card">
-
-            <!--Card content-->
-            <div class="card-body">
-
-              <!-- Table  -->
-              <table class="table table-hover">
-                <!-- Table head -->
-                <thead class="blue lighten-4">
-                  <tr>
-                    <th>#</th>
-                    <th>환자번호</th>
-                    <th>환자명</th>
-                    <th>생년월일</th>
-                  </tr>
-                </thead>
-                <!-- Table head -->
-
-                <!-- Table body -->
-                <tbody>
-                  <tr>
-                    <th scope="row">1</th>
-                    <td>Cell 1</td>
-                    <td>Cell 2</td>
-                    <td>Cell 3</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">2</th>
-                    <td>Cell 4</td>
-                    <td>Cell 5</td>
-                    <td>Cell 6</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">3</th>
-                    <td>Cell 7</td>
-                    <td>Cell 8</td>
-                    <td>Cell 9</td>
-                  </tr>
-                </tbody>
-                <!-- Table body -->
-              </table>
-              <!-- Table  -->
-
-            </div>
-
-          </div>
-          <!--/.Card-->
 
         </div>
         <!--Grid column-->
@@ -224,121 +177,23 @@ position:absolute;
 
 
 
-          <!--Grid row-->
-          <div class="row wow fadeIn">
+      <!--Grid row-->
+      <div class="row wow fadeIn">
 
-              <!--Grid column-->
-              <div class="col-md-6 mb-4">
-      
-                <!--Card-->
-                <div class="card">
-      
-                  <!--Card content-->
-                  <div class="card-body">
-      
-                    <!-- Table  -->
-                    <table class="table table-hover">
-                      <!-- Table head -->
-                      <thead class="blue-grey lighten-4">
-                        <tr>
-                          <th>#</th>
-                          <th>환자번호</th>
-                          <th>환자명</th>
-                          <th>생년월일</th>
-                        </tr>
-                      </thead>
-                      <!-- Table head -->
-      
-                      <!-- Table body -->
-                      <tbody>
-                        <tr>
-                          <th scope="row">1</th>
-                          <td>Cell 1</td>
-                          <td>Cell 2</td>
-                          <td>Cell 3</td>
-                        </tr>
-                        <tr>
-                          <th scope="row">2</th>
-                          <td>Cell 4</td>
-                          <td>Cell 5</td>
-                          <td>Cell 6</td>
-                        </tr>
-                        <tr>
-                          <th scope="row">3</th>
-                          <td>Cell 7</td>
-                          <td>Cell 8</td>
-                          <td>Cell 9</td>
-                        </tr>
-                      </tbody>
-                      <!-- Table body -->
-                    </table>
-                    <!-- Table  -->
-      
-                  </div>
-      
-                </div>
-                <!--/.Card-->
-      
-              </div>
-              <!--Grid column-->
-      
-              <!--Grid column-->
-              <div class="col-md-6 mb-4">
-      
-                <!--Card-->
-                <div class="card">
-      
-                  <!--Card content-->
-                  <div class="card-body">
-      
-                    <!-- Table  -->
-                    <table class="table table-hover">
-                      <!-- Table head -->
-                      <thead class="blue lighten-4">
-                        <tr>
-                          <th>#</th>
-                          <th>환자번호</th>
-                          <th>환자명</th>
-                          <th>생년월일</th>
-                        </tr>
-                      </thead>
-                      <!-- Table head -->
-      
-                      <!-- Table body -->
-                      <tbody>
-                        <tr>
-                          <th scope="row">1</th>
-                          <td>Cell 1</td>
-                          <td>Cell 2</td>
-                          <td>Cell 3</td>
-                        </tr>
-                        <tr>
-                          <th scope="row">2</th>
-                          <td>Cell 4</td>
-                          <td>Cell 5</td>
-                          <td>Cell 6</td>
-                        </tr>
-                        <tr>
-                          <th scope="row">3</th>
-                          <td>Cell 7</td>
-                          <td>Cell 8</td>
-                          <td>Cell 9</td>
-                        </tr>
-                      </tbody>
-                      <!-- Table body -->
-                    </table>
-                    <!-- Table  -->
-      
-                  </div>
-      
-                </div>
-                <!--/.Card-->
-      
-              </div>
-              <!--Grid column-->
-      
-            </div>
-            <!--Grid row-->
+        <!--Grid column-->
+        <div class="col-md-6 mb-4">
+
+        </div>
+        <!--Grid column-->
+
+        <!--Grid column-->
+        <div class="col-md-6 mb-4">
+
+        </div>
+        <!--Grid column-->
+
+      </div>
+      <!--Grid row-->
    
     </div>
   </main>
@@ -436,8 +291,7 @@ position:absolute;
   <script type="text/javascript" src="{{ url_for('static', filename='js/handlebars.js') }}"></script>
   <!-- Manual -->
   <script type="text/javascript" src="{{ url_for('static', filename='js/manual.js') }}"></script>
-  <!-- Manual Handlebars -->
-  <script type="text/javascript" src="{{ url_for('static', filename='js/manual_hbs.html') }}"></script>
+
 
   <!-- Initializations -->
   <script type="text/javascript">

@@ -21,10 +21,11 @@ def dated_url_for(endpoint, **values):
 
 def login_check():
     if session['loginUser'] == None:
-        return redirect('/sign_in')
+        return redirect('/login')
     else:
-        custom_res = Response("Custom Response", 200, {'test': 'ttt'})
-        return make_response(custom_res)
+        # custom_res = Response("Custom Response", 200, {'test': 'ttt'})
+        custom_res = {"code" : 200, "message" : "success"}
+        return jsonify(custom_res)
 
 app.config.update(
 	SECRET_KEY='X1243yRH!mMwf',
@@ -33,29 +34,31 @@ app.config.update(
 )
 
 @app.route('/')
-def main():
+def gatekeeper():
+    print("111111111")
     if session.get('loginUser') == None:
-        return redirect('/sign_in')
-    return render_template("main.html")
+        return redirect('/login')
+    return render_template("application.html")
 
+@app.route('/login')
+def show_login():
+    print("2222222222")
+    return render_template('login.html')
 
-
-@app.route('/sign_in', methods=['GET'])
-def show_sign_in():
-    return render_template("form_extended.html")
-
-
-
-@app.route('/sign_in', methods=['POST'])
-def sign_in():
+@app.route('/login', methods=['POST'])
+def login():
+    print("3333333333")
     email = request.form.get('email')
     passwd = request.form.get('passwd')
     table = request.form.get('table')
+    utype = ""
 
     if table == 'patient':
         u = Patient.query.filter('email = :email and password = sha2(:passwd, 256)').params(email=email, passwd=passwd).first()
+        utype = False
     else:
         u = Doctor.query.filter('email = :email and password = sha2(:passwd, 256)').params(email=email, passwd=passwd).first()
+        utype = True
 
     if u is not None:
         session['loginUser'] = { 'userid': u.id, 'name': u.name }
@@ -63,58 +66,42 @@ def sign_in():
             next = session.get('next')
             del session['next']
             return redirect(next)
-        return render_template("main.html", uname=session['loginUser']["name"])
-        # return redirect('/')
     else:
         flash("해당 사용자가 없습니다!!")
-        return render_template("form_extended.html")
+        return redirect("/login")
 
+    return render_template('main.html', utype=utype, uname=session['loginUser']['name'])
 
 @app.route('/logout')
 def logout():
+    print("444444444")
     if session.get('loginUser'):
         del session['loginUser']
     
-    return redirect('/sign_in')
+    return redirect('/login')
 
+@app.route('/main')
+def main():
+    print("55555555")
+    return render_template('main.html')
 
-
+@app.route('/main/s', methods=['POST'])
+def search():
+    print("6666666666")
+    pat_id = request.form.get('s')
     
-@app.route('/sign_up', methods=['GET'])
-def show_sign_up():
-    return render_template("sign_up.html")
+    p = Patient.query.filter(Patient.id == pat_id).first()
 
-@app.route('/sign_up', methods=['POST'])
+    return jsonify(p.get_json())
+
+@app.route('/sign_up')
 def sign_up():
-    print("1111111111111111111111111")
-    email = request.form.get('email')
-    password = request.form.get('password')
-    password2 = request.form.get('password2')
-    username = request.form.get('username')
+    print("77777777777")
+    return render_template('sign_up.html')
 
-    print(email, username)
-    if password != password2:
-        flash("암호를 정확히 입력하세요!!")
-        return render_template("sign_up.html", email=email, username=username)
-    else:
-        u = Patient(email, password, username, True)
-        try:
-            db_session.add(u)
-            db_session.commit()
-
-        except:
-            db_session.rollback()
-
-        flash("%s 님, 가입을 환영합니다!" % username)
-        return redirect("/sign_in")
-
-
-
-@app.route('/log/write')
-def show_log_input_forms():
-    # check login
-    login_check()
-
+@app.route('/log')
+def log():
+    
     uid = session['loginUser']["userid"]
 
     # petient column information
@@ -122,6 +109,7 @@ def show_log_input_forms():
 
     return render_template("log.html", uname=session['loginUser']["name"], ucol=ret) 
 
+<<<<<<< HEAD
 
 
 @app.route('/log/write', methods=['POST'])
@@ -230,3 +218,5 @@ def column_input():
         custom_res = jsonify({'message': sqlerr})
 
     return make_response(custom_res)
+=======
+>>>>>>> master

@@ -34,18 +34,11 @@ app.config.update(
 )
 
 @app.route('/')
-<<<<<<< HEAD
-def main():
-    return render_template("main.html")
-
-
-=======
 def gatekeeper():
     print("111111111")
     if session.get('loginUser') == None:
         return redirect('/login')
     return render_template("application.html")
->>>>>>> 7b3c566a5c70d3ff3fcc39ea35e5a4edfd540225
 
 @app.route('/login')
 def show_login():
@@ -61,17 +54,11 @@ def login():
     utype = ""
 
     if table == 'patient':
-<<<<<<< HEAD
-        u = Patient.query.filter(Patient.email == email and Patient.password == func.sha2(passwd, 256)).first()
-    else:
-        u = Doctor.query.filter(Doctor.email == email and Doctor.password == func.sha2(passwd, 256)).first()
-=======
         u = Patient.query.filter('email = :email and password = sha2(:passwd, 256)').params(email=email, passwd=passwd).first()
         utype = False
     else:
         u = Doctor.query.filter('email = :email and password = sha2(:passwd, 256)').params(email=email, passwd=passwd).first()
         utype = True
->>>>>>> 7b3c566a5c70d3ff3fcc39ea35e5a4edfd540225
 
     if u is not None:
         print("313131313131")

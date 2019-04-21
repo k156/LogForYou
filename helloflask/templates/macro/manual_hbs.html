@@ -1,0 +1,84 @@
+{% raw %}
+<script id="search-template" type="text/x-handlebars-template">
+    <div class="card">
+
+            <!--Card content-->
+            <div class="card-body">
+
+              <!-- Table  -->
+              <table class="table table-hover">
+                <!-- Table head -->
+                <thead class="blue-grey lighten-4">
+                  <tr>
+                    <th>환자번호</th>
+                    <th>생년월일</th>
+                    <th>      </th>
+                  </tr>
+                </thead>
+                <!-- Table head -->
+
+                <!-- Table body -->
+                <tbody>
+                  <tr>
+                    <td>{{id}}</td>
+                    <td>{{birth}}</td>
+                    <td>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target='#rgModal'>
+                            추가하기
+                        </button>
+                    </td>
+                  </tr>
+                </tbody>
+                <!-- Table body -->
+              </table>
+              <!-- Table  -->
+
+            </div>
+
+          </div>
+</script>
+{% endraw %}
+
+
+{% raw %}
+<script id="mypat-template" type="text/x-handlebars-template">
+<div class="card" id = {{}}>
+
+    <!--Card content-->
+    <div class="card-body">
+
+      <!-- Table  -->
+      <table class="table table-hover">
+        <!-- Table head -->
+        <thead class="blue-grey lighten-4">
+          <tr>
+            <th>#</th>
+            <th>환자번호</th>
+            <th>환자명</th>
+            <th>생년월일</th>
+          </tr>
+        </thead>
+        <!-- Table head -->
+
+        <!-- Table body -->
+        <tbody>
+          {{#each result}}
+          <tr>
+            <th scope="row">1</th>
+            <td>{{id}}</td>
+            <td>{{name}}</td>
+            <td>{{birth}}</td>
+          </tr>
+          {{/each}}
+
+        </tbody>
+        <!-- Table body -->
+      </table>
+      <!-- Table  -->
+
+    </div>
+
+  </div>
+</script>
+{% endraw %}
+

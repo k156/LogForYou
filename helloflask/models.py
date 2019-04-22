@@ -1,6 +1,38 @@
 from helloflask.init_db import Base, db_session
 from sqlalchemy import Column, Integer, String, func, ForeignKey, DATE, MetaData, Table, DATETIME
 from sqlalchemy.orm import relationship, joinedload
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms.validators import DataRequired, Length, Email, Regexp, EqualTo
+from wtforms import ValidationError
+
+
+
+class Sign_upForm(Base):
+    email = StringField('이메일 주소', validators=[DataRequired(), Length(1, 64),
+                                             Email()])
+    username = StringField('성명', validators=[
+        DataRequired(), Length(1, 64),
+        Regexp('^[A-Za-z][가-힣]*$', 0,
+               '본명을 기입해주세요.')])
+    password = PasswordField('비밀번호', validators=[
+        DataRequired(), EqualTo('password2', message='비밀번호가 일치하지 않습니다.')])
+    password2 = PasswordField('비밀번호 확인', validators=[DataRequired()])
+    # birth = BirthField('생일', )
+    # gender = GenderField('성별',   )
+    # department = DepartmentField('진료과', )
+    submit = SubmitField('Register')
+
+    def validate_email(self, field):
+        if User.query.filter_by(email=field.data).first():
+            raise ValidationError('Email already registered.')
+
+    def validate_username(self, field):
+        if User.query.filter_by(username=field.data).first():
+            raise ValidationError('Username already in use.')
+
+
+
 
 class Doctor(Base):
     __tablename__ = 'Doctors'

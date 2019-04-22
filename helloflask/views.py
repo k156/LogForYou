@@ -117,7 +117,7 @@ def search():
 @app.route('/sign_up')
 def sign_up():
     print("77777777777")
-    return render_template('sign_up.html')
+    return render_template('sign_up2.html')
 
 @app.route('/log')
 def log():
@@ -128,4 +128,3 @@ def log():
     ret = db_session.query(UsercolMaster).join(Pat_Usercol, UsercolMaster.id == Pat_Usercol.usercol_id).join(Patient, Patient.id == Pat_Usercol.pat_id).filter(Patient.id == uid).all()
 
     return render_template("log.html", uname=session['loginUser']["name"], ucol=ret) 
-

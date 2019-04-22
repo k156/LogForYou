@@ -117,7 +117,7 @@ def search():
 @app.route('/sign_up')
 def sign_up():
     print("77777777777")
-    return render_template('sign_up.html')
+    return render_template('sign_up2.html')
 
 @app.route('/log')
 def log():

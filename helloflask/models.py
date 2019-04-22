@@ -146,6 +146,9 @@ class Discode(Base):
 
     def __repr__(self):
         return 'Discode %s, %s, %s' % (self.code, self.disease, self.sci_name)
+    
+    def get_json(self):
+        return {"code" : self.code, "disease" : self.disease, "sci_name" : self.sci_name}
 
 class DisCode_Usercol(Base):
     __tablename__ = 'DisCode_Usercol'

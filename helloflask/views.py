@@ -7,6 +7,7 @@ from helloflask.init_db import db_session
 from sqlalchemy.orm import joinedload
 
 from pprint import pprint
+import re
 
 from datetime import date, datetime, timedelta
 
@@ -84,7 +85,7 @@ def logout():
 
 @app.route('/main')
 def main():
-
+    session['loginUser'] = { 'userid': 1, 'name': '한도성' , 'utype' : True}
     s=session['loginUser']
 
     return render_template('main.html', utype=s['utype'], uname=s['name'])
@@ -129,3 +130,34 @@ def log():
 
     return render_template("log.html", uname=session['loginUser']["name"], ucol=ret) 
 
+@app.route('/log/w', methods=['POST'])
+def log_write():
+
+    pat_id = session['loginUser']['userid']
+    request_list = request.form
+
+    pattern = re.compile("[0-9]+")
+
+    data_list = []
+    
+    for i, k in enumerate(request_list):
+        data = {}
+        kk = re.findall(pattern,k)[0]
+        data['pat_id'] = pat_id
+        data['usercol_id'] = kk
+        data['value'] = request_list[k]
+        data_list.append(data)
+
+    # Log table에 executemany
+    try:
+        db_session.bulk_insert_mappings(Log,data_list)
+        db_session.commit()  
+        # custom_res = Response("Custom Response", 200, {'message': 'success'})
+        custom_res = {"code" : 200, "message" : "sucess"}
+
+    except SQLAlchemyError as sqlerr:
+        db_session.rollback()
+        # custom_res = Response("Custom Response", 500, {'message': sqlerr})
+        custom_res = {"code" : 500, "message" : sqlerr}
+    
+    return jsonify(custom_res)

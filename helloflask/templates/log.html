@@ -8,7 +8,7 @@
 
 <!-- patient input form -->
 {% block body %}
-<form action="/log/write" method="POST">
+<form action="/log/w" method="POST">
 {% set il = namespace() %}
 {% set il.val = 1 %}
 {% if ucol %}
@@ -31,6 +31,9 @@
 
 
 <!-- QQQ 버튼 중앙에 위치시키기  -->
-  <button type="submit" class="btn btn-primary">Submit</button>
+  <button onclick="write_log(event)" class="btn btn-primary btn-sm my-0 p">
+    Submit
+  </button>
+
 </form>
 {% endblock body %}

@@ -1,5 +1,5 @@
 {% extends "application.html" %}
-{% from "macro/main_macro.html" import search %}
+{% from "macro/main_macro.html" import search, register, column_selectbox %}
 
 
 <!-- Navbar -->
@@ -73,3 +73,8 @@
         {% endblock mypt %}
       </div>
 {% endblock dashboard %}
+
+{% block modal %}  
+{{register()}}
+
+{% endblock modal %}  

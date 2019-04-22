@@ -10,6 +10,7 @@ class Doctor(Base):
     password = Column(String)
     departmentId = Column(Integer)
     # department = relationship('Departments')
+    patients = relationship('Doc_Pat')
     
     def __init__(self, email=None, passwd=None, name='의사', makeSha=False):
         self.email = email
@@ -32,8 +33,10 @@ class Patient(Base):
     birth = Column(String)
     gender = Column(Integer)
     pat_usercol = relationship('Pat_Usercol')
+    doc_pat = relationship('Doc_Pat')
 
-    # doc_pat = relationship('Doc_Pat')
+    g = 'm' if (gender == 1) else 'f'
+
     
     ## log, col-patients relationship 필요.
     
@@ -46,10 +49,28 @@ class Patient(Base):
         self.name = name
 
     def __repr__(self):
-        return 'User %s, %r, %r' % (self.id, self.email, self.name)
+        return 'User %s, %s, %s, %s, %s' % (self.id, self.email, self.name, self.birth, self.g)
 
     def get_json(self):
-        return {'id' : self.id, 'name' : self.name, 'email' : self.email}
+        return {'id' : self.id, 'name' : self.name, 'email' : self.email, 'birth' : self.birth, 'gender' : self.g}
+
+class Doc_Pat(Base):
+    __tablename__ = "Doc_Pat"
+    id = Column(Integer, primary_key=True)
+    doc_id = Column(Integer, ForeignKey('Doctors.id'))
+    pat_id = Column(Integer, ForeignKey('Patients.id'))
+    doc = relationship('Doctor')
+    pat = relationship('Patient')
+
+    def __init__(self, id, pat_id, doc_id):
+        self.id = id
+        self.pat_id = pat_id
+        self.doc_id = doc_id
+
+    def get_json(self):
+        return {"id":self.id, "doc_id": self.doc_id, "pat_id" : self.pat_id, "doc" : self.doc, "pat" : self.pat}
+
+
 
 class Pat_Usercol(Base):
     __tablename__ = 'Pat_Usercol'

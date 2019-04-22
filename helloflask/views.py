@@ -1,6 +1,6 @@
 from helloflask import app
 from flask import render_template, request, session, redirect, flash, Response, make_response, jsonify
-from helloflask.models import Patient, Doctor, Pat_Usercol, UsercolMaster, Log, Discode, DisCode_Usercol
+from helloflask.models import Patient, Doctor, Pat_Usercol, UsercolMaster, Log, Discode, DisCode_Usercol, Doc_Pat
 from sqlalchemy import func
 from sqlalchemy.sql import select, insert
 from helloflask.init_db import db_session
@@ -61,16 +61,18 @@ def login():
         utype = True
 
     if u is not None:
-        session['loginUser'] = { 'userid': u.id, 'name': u.name }
+        print("313131313131")
+        session['loginUser'] = { 'userid': u.id, 'name': u.name , 'utype' : utype}
+        session['next'] = '/main'
+        print(session)
         if session.get('next'):
             next = session.get('next')
+            print(">>>>>", next)
             del session['next']
             return redirect(next)
     else:
         flash("해당 사용자가 없습니다!!")
         return redirect("/login")
-
-    return render_template('main.html', utype=utype, uname=session['loginUser']['name'])
 
 @app.route('/logout')
 def logout():
@@ -82,8 +84,25 @@ def logout():
 
 @app.route('/main')
 def main():
-    print("55555555")
-    return render_template('main.html')
+
+    s=session['loginUser']
+
+    return render_template('main.html', utype=s['utype'], uname=s['name'])
+
+@app.route('/main/r', methods=['POST'])
+def read():
+
+    doc_id = session['loginUser']['userid']
+    p_list = Doc_Pat.query.filter(Doc_Pat.doc_id == doc_id).all()
+
+    result = []
+
+    for p in p_list:
+        data = p.pat.get_json()
+        
+        result.append(data)
+    
+    return jsonify({'result': result})
 
 @app.route('/main/s', methods=['POST'])
 def search():
@@ -91,6 +110,7 @@ def search():
     pat_id = request.form.get('s')
     
     p = Patient.query.filter(Patient.id == pat_id).first()
+    print(p.get_json())
 
     return jsonify(p.get_json())
 

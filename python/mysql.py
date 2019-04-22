@@ -1,15 +1,9 @@
 import pymysql
 import csv
 import codecs
-
-def get_conn():
-    return pymysql.connect(
-        host='35.194.112.136',
-        user='root',
-        password='log190321',
-        port=3306,
-        db='logforyoudb',
-        charset='utf8')
+import os, sys
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))))
+from keys import get_conn
 
 sql_truncate = "truncate table UsercolMaster"
 sql_insert = "insert into UsercolMaster(col_name, min, max, col_desc) values(%s,%s,%s,%s)"
@@ -40,7 +34,7 @@ def save(lst):
                 print(sql_insert)
                 cur.execute(sql_insert, ll)
             else:
-                sql_insert = "insert into UsercolMaster(col_name, min, max, col_desc, col_type) values(%s,%s,%s,%s,%s)"
+``                sql_insert = "insert into UsercolMaster(col_name, min, max, col_desc, col_type) values(%s,%s,%s,%s,%s)"
                 cur.execute(sql_insert, l)
 
         # cur.executemany(sql_insert, lst)

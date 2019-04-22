@@ -4,7 +4,10 @@ from dateutil.relativedelta import relativedelta
 from helloflask.init_db import init_database, db_session
 from helloflask.models import Patient, Doctor, Log, UsercolMaster, Pat_Usercol
 from flask import url_for
-import os
+import os, sys
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))))
+from keys import secret_key
+
 
 
 app = Flask(__name__)
@@ -20,7 +23,7 @@ def dated_url_for(endpoint, **values):
     return url_for(endpoint, **values)
 
 app.config.update(
-	SECRET_KEY='X1243yRH!mMwf',
+	SECRET_KEY=secret_key,
 	SESSION_COOKIE_NAME='pyweb_flask_session',
 	PERMANENT_SESSION_LIFETIME=timedelta(31)      # 31 days
 )

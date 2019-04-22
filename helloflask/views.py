@@ -7,7 +7,7 @@ from helloflask.init_db import db_session
 from sqlalchemy.orm import joinedload
 
 from pprint import pprint
-import re
+import re, json
 
 from datetime import date, datetime, timedelta
 
@@ -85,10 +85,71 @@ def logout():
 
 @app.route('/main')
 def main():
+    # QQQ 삭제하기.
     session['loginUser'] = { 'userid': 1, 'name': '한도성' , 'utype' : True}
     s=session['loginUser']
 
     return render_template('main.html', utype=s['utype'], uname=s['name'])
+
+@app.route('/main', methods=['POST'])
+def get_collist():
+
+    discode_list = Discode.query.all()
+    col_list = UsercolMaster.query.all()
+    usercol_list = UsercolMaster.query.join(Pat_Usercol, Pat_Usercol.usercol_id == UsercolMaster.id).filter(Pat_Usercol.pat_id == 1).all()
+    
+    data = [discode.get_json() for discode in discode_list]
+    data1 = [col.get_json() for col in col_list]
+    data2 = [usercol.get_json() for usercol in usercol_list]
+    
+    # discode는 질병코드, col는 증상코드, result는 환자에게 증상코드들이 선택되어 있을 때의 목록.
+    return jsonify({'discode':data, 'col':data1, 'result':data2})
+
+@app.route('/main/add_col/<coltype>', methods=['POST'])
+def add_col(coltype):
+    
+    id = request.form.get('id')
+    
+    if coltype == 'discode_list':
+        col_list = UsercolMaster.query.join(DisCode_Usercol, DisCode_Usercol.usercol_id == UsercolMaster.id).filter(DisCode_Usercol.discode_id == 311).all()
+
+    else:
+        col_list = UsercolMaster.query.filter(UsercolMaster.id == id).all()
+    
+    data = [col.get_json() for col in col_list]
+    
+    return jsonify({'result':data})
+
+@app.route('/main/w', methods=['POST'])
+def write():
+    print("::::::")
+    
+    immutableMultiDict = request.form
+
+    jsonData = immutableMultiDict.to_dict(flat=False)
+
+    col_list = [jsonData[d][0] for i, d in enumerate(jsonData)]
+
+    print(col_list)
+
+    try:
+        db_session.bulk_insert_mappings(Pat_Usercol,data_list)
+        db_session.commit()  
+        # custom_res = Response("Custom Response", 200, {'message': 'success'})
+        custom_res = {"code" : 200, "message" : "sucess"}
+
+    except SQLAlchemyError as sqlerr:
+        db_session.rollback()
+        # custom_res = Response("Custom Response", 500, {'message': sqlerr})
+        custom_res = {"code" : 500, "message" : sqlerr}
+    
+    return jsonify(custom_res)
+
+    
+    
+    # ImmutableMultiDict([('req[]', '1'), ('req[]', '2'), ('req[]', '11'), ('req[]', '14')])
+
+    return jsonify({'result':"OK"})
 
 @app.route('/main/r', methods=['POST'])
 def read():

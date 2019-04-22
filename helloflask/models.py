@@ -102,6 +102,13 @@ class UsercolMaster(Base):
     col_type = Column(Integer)
     pat_usercol = relationship('Pat_Usercol')
 
+    def __init__(self):
+        self.id = id
+        self.col_name = col_name
+        self.col_desc = col_desc
+        self.dept_id = dept_id
+        self.col_type = col_type
+        
     def __repr__(self):
         return 'Column %s, %s, %s, %s' % (self.id, self.col_name, self.col_desc, self.col_type)
     
@@ -146,6 +153,9 @@ class Discode(Base):
 
     def __repr__(self):
         return 'Discode %s, %s, %s' % (self.code, self.disease, self.sci_name)
+
+    def get_json(self):
+        return {'id' : self.id, 'code' : self.code, 'disease' : self.disease, 'sci_name' : self.sci_name}
 
 class DisCode_Usercol(Base):
     __tablename__ = 'DisCode_Usercol'

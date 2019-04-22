@@ -59,26 +59,40 @@ function search(event) {
         function(res){
             console.log(res);
             // hbs('search-template', res, 'search-result')
-            hbs('search-template', res, 'patients')
+            hbs('search-template', res, 'patients', true)
         }
     );
 }
 
-function hbs(sourceId, data, resultId){
+
+
+function hbs(sourceId, data, resultId, isFirst=true){
+    
     var source = document.getElementById(sourceId).innerHTML;
     var template = Handlebars.compile(source);
-    var html = template(data);
-    document.getElementById(resultId).innerHTML = html;
+    
+    if (isFirst){
+        var html = template(data);
+        document.getElementById(resultId).innerHTML = html;
+    }
+    else{
+        var html = template(data);
+        document.getElementById(resultId).innerHTML += html;
+    }
 }
 
 function send_ajax(url, method, data, dataType, fn) {
-    $.ajax({
+    var options = {
         url: url,
         data: data,
         type: method,
         dataType: dataType
+    };
 
-    }).done(function (res) {
+    if (dataType == 'ajson')
+        options.contentType= 'application/json';
+
+    $.ajax(options).done(function (res) {
         if (fn)
             fn(res)
 
@@ -92,16 +106,65 @@ function send_ajax(url, method, data, dataType, fn) {
 
 var main_url = window.location.href
 
+// $("#myBtn").click(function(){
+//     console.log("aaaaa", ...arguments)
+//     $("#rgModal").modal();
+// });
+
+let pat_id = null;
+function open_modal(value){
+    console.log("aaaaa", ...arguments)
+    pat_id = value
+    console.log("value>>>>>>", pat_id)
+    $("#rgModal").modal();
+}
+
 $( document ).ready(function() {
     if ( main_url === "http://localhost:5000/main"){
         send_ajax('/main/r', 'POST', "", "json", function(res){
-            console.log("res>>>>>", res)
 
-            hbs("mypat-template", res, "patients")
-        })
+            // QQQ 의사 로그인 후 나의 환자 목록
+            // hbs("mypat-template", res, "patients")
+        });
+        send_ajax('/main', 'POST', "", "json", function(res2){
+ 
+            hbs("discode-template", res2, 'discode_list', true);
+            hbs("colmaster-template", res2, 'col_list', true);
+            hbs("col-template", res2, 'badge', true)
+        });
         
     }
 
 });
 
-$()
+
+function add_col(id){
+    console.log("aaaaa", ...arguments)
+
+    var $value = document.getElementById(id).value
+
+    send_ajax('/main/add_col/'+id, 'POST', {'id' : $value}, "json", function(res4){
+        console.log("res4>>>", res4)
+
+        hbs('col-template', res4, 'badge', false);
+    })
+
+}
+
+
+function get_complete_columns(){
+    var $badge = $('#badge span');
+    var data = [];
+    data.push(pat_id)
+    for (var i = 0, len = $badge.length; i < len; i++) {
+        var data1 = {};
+        col_id = $badge[i].id;
+        data1[i] = col_id;
+        data.push(data1);
+    };
+    
+    
+    send_ajax('/main/w', 'POST', {req : data}, 'json', function(res5){
+        console.log("res5>>>>>", res5);
+    })
+}

@@ -94,8 +94,6 @@ def logout():
 
 @app.route('/main')
 def main():
-    # QQQ 삭제하기.
-    session['loginUser'] = { 'userid': 1, 'name': '한도성' , 'utype' : True}
     s=session['loginUser']
 
     return render_template('main.html', utype=s['utype'], uname=s['name'])
@@ -136,38 +134,21 @@ def write():
     
     isAdded = False
     doc_id = session['loginUser']['userid']
-
-    # patients_list = Doctor.query.options(joinedload(Doctor.patients)).filter_by(id = doc_id).all()
-
     patients_list = Doc_Pat.query.filter(Doc_Pat.pat_id == doc_id).all()
-
-    print(patients_list)
-
     immutableMultiDict = request.form
 
     jsonData = immutableMultiDict.to_dict(flat=False)
-    print("jsonData>>>>", jsonData)
     request_data_list = [jsonData[d] for i, d in enumerate(jsonData)]
-    print("col_list>>>>", request_data_list)
     pat_id = int(request_data_list.pop(0)[0])
     discode = int(request_data_list.pop(0)[0])
     col_list = [int(col_id) for col_id in request_data_list.pop(0)]
 
-    print("discode::::::: ", type(discode), discode)
-    print("pat_id::::::: ", type(pat_id), pat_id)
-    print("col_list::::::: ", type(col_list), col_list)
-
     # 기존 환자인지 체크
     for patient in patients_list:
-        print("153>>>>>>>", patient.get_json()['id'], pat_id)
-        print("153-1>>>>>>>", type(patient.get_json()['id']), type(pat_id))
         if (patient.get_json()['id'] == pat_id):
-            print("iiiiiffff")
             isAdded = True
             break
-            
-
-    print("isADDED>>>>>> ", isAdded)
+        
     # 신규 환자 추가
     if(isAdded == False):
         dp = Doc_Pat(pat_id, doc_id)
@@ -182,14 +163,10 @@ def write():
     assigned_docpat = Doc_Pat.query.filter(Doc_Pat.pat_id == pat_id and Doc_Pat.doc_id == doc_id).first()
     assigned_docpat_id = assigned_docpat.get_json()['id']
 
-    print("===================")
-    print("assigned_discode_list>>>>>>> ", type(assigned_discode_list), assigned_discode_list)
-    print("assigned_docpat_id>>>>>>>>>> ", assigned_docpat_id, type(assigned_docpat_id))
-
     # req의 discode가 전체가 아니라, 특정한 discode가 왔고, 그 것이 등록이 안 되어 있을 때 추가
     if(discode != 0):
         assigned_discode_id_list = [assigned_discode.get_json()['discode_id'] for assigned_discode in assigned_discode_list]
-        print("assigned_discode_id_list>>>>>>>> ", type(assigned_discode_id_list), assigned_discode_id_list)
+        
         if(discode not in assigned_discode_id_list):
             dpd = DocPat_Disc(assigned_docpat_id, discode)
             try:
@@ -206,19 +183,6 @@ def write():
 
     patuser_col_list_from_db_min = [ col_list.get_json()['usercol_id'] for col_list in patuser_col_list_from_db]
 
-    print("patuser_col_list_from_db_min>>>>>>>>>>>> ", type(patuser_col_list_from_db_min), patuser_col_list_from_db_min)
-    # 환자의 DB에 등록된 칼럼 존재 여부 확인 및 insert/delete 데이터 구성.
-    # data_id_list = []
-    # if(len(patuser_col_list_from_db_min) != 0):
-    #     for data in data_list:
-    #         data_id_list.append(data['usercol_id'])
-    #         if (data['usercol_id'] in patuser_col_list_from_db_min):
-    #             print("data, index>>> ", data, data_list.index(data))
-    #             del data_list[data_list.index(data)]
-    
-    # delete_col_list = filter(lambda x: x not in data_id_list, patuser_col_list_from_db_min)
-    # delete_data_list = [{'pat_id':pat_id, 'usercol_id':col} for col in delete_col_list]
-
     input_data_list = []
     if(len(patuser_col_list_from_db_min) != 0):
         for data in data_list:
@@ -229,17 +193,15 @@ def write():
 
     delete_data_list = [{'pat_id':pat_id, 'usercol_id':col} for col in patuser_col_list_from_db_min]
 
-    print("data_list>>>>>>>>> ", type(input_data_list), input_data_list)
-    # print("delete_col_list>>>>>", delete_col_list)
-    print("delete_data_list>>>>>", delete_data_list)
+    
     # 삭제할 데이터가 있으면 delete
     if (len(delete_data_list) != 0):
-        print("/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/")
+        
         for delete_data in delete_data_list: 
             # pu = Pat_Usercol(delete_data['pat_id'], delete_data['usercol_id'])
             delete_col = Pat_Usercol.query.filter(Pat_Usercol.pat_id == delete_data['pat_id'] and Pat_Usercol.usercol_id == delete_data['usercol_id']).first()
             delete_col_id = delete_col.get_json()['id']
-            print("delete_col_id>>>>>>> ", delete_col_id, type(delete_col_id))
+            
             try:
                 # db_session.delete(pu)
                 Pat_Usercol.query.filter_by(id = delete_col_id).delete()
@@ -299,6 +261,9 @@ def sign_up():
 @app.route('/log')
 def log():
     
+    utype = session['loginUser']['utype']
+    if (utype):
+        return redirect('/login')
     uid = session['loginUser']["userid"]
 
     # petient column information

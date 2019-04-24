@@ -163,12 +163,12 @@ function add_col(id){
 
 
 function get_complete_columns(){
-    console.log("get_complete_columns============ ")
+    // console.log("get_complete_columns============ ")
     var $badge = $('#badge span');
     var data = [];
     var data1 = [];
     var discode = $('#discode_list').val()
-    console.log("discode >>> ", discode)
+    // console.log("discode >>> ", discode)
     data.push({'pat_id':pat_id})
     data.push({'discode':discode})
     for (var i = 0, len = $badge.length; i < len; i++) {
@@ -176,7 +176,7 @@ function get_complete_columns(){
         data1[i] = col_id;
     };
     data.push({"col_id":data1});
-    console.log("data>>>>>>>>>", data)
+    // console.log("data>>>>>>>>>", data)
     
     send_ajax('/main/w', 'POST', {req : data}, 'json', function(res5){
         console.log("res5>>>>>", res5);

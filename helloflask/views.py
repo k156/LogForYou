@@ -236,9 +236,13 @@ def write():
     if (len(delete_data_list) != 0):
         print("/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/")
         for delete_data in delete_data_list: 
-            pu = Pat_Usercol(delete_data['pat_id'], delete_data['usercol_id'])
+            # pu = Pat_Usercol(delete_data['pat_id'], delete_data['usercol_id'])
+            delete_col = Pat_Usercol.query.filter(Pat_Usercol.pat_id == delete_data['pat_id'] and Pat_Usercol.usercol_id == delete_data['usercol_id']).first()
+            delete_col_id = delete_col.get_json()['id']
+            print("delete_col_id>>>>>>> ", delete_col_id, type(delete_col_id))
             try:
-                db_session.delete(pu)
+                # db_session.delete(pu)
+                Pat_Usercol.query.filter_by(id = delete_col_id).delete()
                 db_session.commit()
                 custom_res = {"code" : 200, "message" : "sucess"}
             # QQQ  SQLAlchemyError define 에러 해결하기.

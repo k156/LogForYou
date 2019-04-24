@@ -105,18 +105,16 @@ function send_ajax(url, method, data, dataType, fn) {
 }
 
 var main_url = window.location.href
-
-// $("#myBtn").click(function(){
-//     console.log("aaaaa", ...arguments)
-//     $("#rgModal").modal();
-// });
-
 let pat_id = null;
+
 function open_modal(value){
-    console.log("aaaaa", ...arguments)
     pat_id = value
-    console.log("value>>>>>>", pat_id)
-    $("#rgModal").modal();
+    document.getElementById('badge').innerHTML = ""
+
+    send_ajax('/main', 'POST', "", "json", function(res2){
+        hbs("col-template", res2, 'badge', true)
+    });
+    $('#rgModal').show();
 }
 
 $( document ).ready(function() {
@@ -128,8 +126,8 @@ $( document ).ready(function() {
         });
         send_ajax('/main', 'POST', "", "json", function(res2){
  
-            hbs("discode-template", res2, 'discode_list', true);
-            hbs("colmaster-template", res2, 'col_list', true);
+            hbs("discode-template", res2, 'discode_list', false);
+            hbs("colmaster-template", res2, 'col_list', false);
             hbs("col-template", res2, 'badge', true)
         });
         
@@ -139,13 +137,25 @@ $( document ).ready(function() {
 
 
 function add_col(id){
-    console.log("aaaaa", ...arguments)
+    
+    var $badges = $.makeArray($("span.badge").map(function(){
+        return $(this).attr("id");
+    }));
 
-    var $value = document.getElementById(id).value
+    var $value = document.getElementById(id).value;
 
     send_ajax('/main/add_col/'+id, 'POST', {'id' : $value}, "json", function(res4){
-        console.log("res4>>>", res4)
-
+        var di = null;
+        
+        for(var i in res4['result']) {
+            $badges.find(function(item) {
+                var j = res4['result'][i];
+                if (item == j['id']){
+                    di = res4['result'].indexOf(j);
+                    if(di>-1) res4['result'].splice(di, 1);
+                }
+            });
+        }
         hbs('col-template', res4, 'badge', false);
     })
 
@@ -153,18 +163,27 @@ function add_col(id){
 
 
 function get_complete_columns(){
+    console.log("get_complete_columns============ ")
     var $badge = $('#badge span');
     var data = [];
-    data.push(pat_id)
+    var data1 = [];
+    var discode = $('#discode_list').val()
+    console.log("discode >>> ", discode)
+    data.push({'pat_id':pat_id})
+    data.push({'discode':discode})
     for (var i = 0, len = $badge.length; i < len; i++) {
-        var data1 = {};
         col_id = $badge[i].id;
         data1[i] = col_id;
-        data.push(data1);
     };
-    
+    data.push({"col_id":data1});
+    console.log("data>>>>>>>>>", data)
     
     send_ajax('/main/w', 'POST', {req : data}, 'json', function(res5){
         console.log("res5>>>>>", res5);
     })
+}
+
+function remove_element(value) {
+    var id = '#' + value;
+    $(id).remove();
 }

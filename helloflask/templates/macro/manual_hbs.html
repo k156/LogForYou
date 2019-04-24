@@ -103,7 +103,9 @@
 {% raw %}
 <script id="col-template" type="text/x-handlebars-template">
   {{#each result}}
-    <span class="chip mb-0 ml-3 waves-effect waves-effect" id='{{id}}'>{{col_name}} <i class="close fas fa-times"></i></span>
+    <span class="badge mb-0 ml-3 waves-effect waves-effect badge-primary" id='{{id}}'>{{col_name}}<i class="close fas fa-times" value="{{id}}" onclick="remove_element({{id}})"></i>
+    </span>
   {{/each}}
   </script>
 {% endraw %}
+

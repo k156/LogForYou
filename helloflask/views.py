@@ -1,6 +1,6 @@
 from helloflask import app
 from flask import render_template, request, session, redirect, flash, Response, make_response, jsonify
-from helloflask.models import Patient, Doctor, Pat_Usercol, UsercolMaster, Log, Discode, DisCode_Usercol, Doc_Pat
+from helloflask.models import Patient, Doctor, Pat_Usercol, UsercolMaster, Log, Discode, DisCode_Usercol, Doc_Pat, DocPat_Disc
 from sqlalchemy import func
 from sqlalchemy.sql import select, insert
 from helloflask.init_db import db_session
@@ -10,6 +10,15 @@ from pprint import pprint
 import re, json
 
 from datetime import date, datetime, timedelta
+
+def insert_data(v): 
+    item = db_session.query(Table).filter_by(code = v['code']).first() 
+    if item == None: 
+        data = Table(v['code'], v['data']) 
+        db_session.add(data) 
+        db_session.commit() 
+
+
 
 def dated_url_for(endpoint, **values):
     if endpoint == 'static':
@@ -110,6 +119,7 @@ def add_col(coltype):
     
     id = request.form.get('id')
     
+    # QQQ discode 바꾸기
     if coltype == 'discode_list':
         col_list = UsercolMaster.query.join(DisCode_Usercol, DisCode_Usercol.usercol_id == UsercolMaster.id).filter(DisCode_Usercol.discode_id == 311).all()
 
@@ -124,32 +134,133 @@ def add_col(coltype):
 def write():
     print("::::::")
     
+    isAdded = False
+    doc_id = session['loginUser']['userid']
+
+    # patients_list = Doctor.query.options(joinedload(Doctor.patients)).filter_by(id = doc_id).all()
+
+    patients_list = Doc_Pat.query.filter(Doc_Pat.pat_id == doc_id).all()
+
+    print(patients_list)
+
     immutableMultiDict = request.form
 
     jsonData = immutableMultiDict.to_dict(flat=False)
+    print("jsonData>>>>", jsonData)
+    request_data_list = [jsonData[d] for i, d in enumerate(jsonData)]
+    print("col_list>>>>", request_data_list)
+    pat_id = int(request_data_list.pop(0)[0])
+    discode = int(request_data_list.pop(0)[0])
+    col_list = [int(col_id) for col_id in request_data_list.pop(0)]
 
-    col_list = [jsonData[d][0] for i, d in enumerate(jsonData)]
+    print("discode::::::: ", type(discode), discode)
+    print("pat_id::::::: ", type(pat_id), pat_id)
+    print("col_list::::::: ", type(col_list), col_list)
 
-    print(col_list)
+    # 기존 환자인지 체크
+    for patient in patients_list:
+        print("153>>>>>>>", patient.get_json()['id'], pat_id)
+        print("153-1>>>>>>>", type(patient.get_json()['id']), type(pat_id))
+        if (patient.get_json()['id'] == pat_id):
+            print("iiiiiffff")
+            isAdded = True
+            break
+            
 
-    try:
-        db_session.bulk_insert_mappings(Pat_Usercol,data_list)
-        db_session.commit()  
-        # custom_res = Response("Custom Response", 200, {'message': 'success'})
+    print("isADDED>>>>>> ", isAdded)
+    # 신규 환자 추가
+    if(isAdded == False):
+        dp = Doc_Pat(pat_id, doc_id)
+        try:
+            db_session.add(dp)
+            db_session.commit()
+        except SQLAlchemyError as sqlerr:
+            db_session.rollback()
+    
+    # 환자의 진단된 질병코드가 있는지 확인 및 추가
+    assigned_discode_list = DocPat_Disc.query.join(Doc_Pat, DocPat_Disc.docpat_id == Doc_Pat.id).filter(Doc_Pat.pat_id == pat_id).all()
+    assigned_docpat = Doc_Pat.query.filter(Doc_Pat.pat_id == pat_id and Doc_Pat.doc_id == doc_id).first()
+    assigned_docpat_id = assigned_docpat.get_json()['id']
+
+    print("===================")
+    print("assigned_discode_list>>>>>>> ", type(assigned_discode_list), assigned_discode_list)
+    print("assigned_docpat_id>>>>>>>>>> ", assigned_docpat_id, type(assigned_docpat_id))
+
+    # req의 discode가 전체가 아니라, 특정한 discode가 왔고, 그 것이 등록이 안 되어 있을 때 추가
+    if(discode != 0):
+        assigned_discode_id_list = [assigned_discode.get_json()['discode_id'] for assigned_discode in assigned_discode_list]
+        print("assigned_discode_id_list>>>>>>>> ", type(assigned_discode_id_list), assigned_discode_id_list)
+        if(discode not in assigned_discode_id_list):
+            dpd = DocPat_Disc(assigned_docpat_id, discode)
+            try:
+                db_session.add(dpd)
+                db_session.commit()
+            except SQLAlchemyError as sqlerr:
+                db_session.rollback()
+            
+    # 리퀘스트 칼럼
+    data_list = [{'pat_id': pat_id, 'usercol_id': col_id} for col_id in col_list]
+
+    # 기존 칼럼 확인 및 새로 추가할 칼럼으로만 데이터 구성
+    patuser_col_list_from_db = Pat_Usercol.query.filter(Pat_Usercol.pat_id == pat_id).all()
+
+    patuser_col_list_from_db_min = [ col_list.get_json()['usercol_id'] for col_list in patuser_col_list_from_db]
+
+    print("patuser_col_list_from_db_min>>>>>>>>>>>> ", type(patuser_col_list_from_db_min), patuser_col_list_from_db_min)
+    # 환자의 DB에 등록된 칼럼 존재 여부 확인 및 insert/delete 데이터 구성.
+    # data_id_list = []
+    # if(len(patuser_col_list_from_db_min) != 0):
+    #     for data in data_list:
+    #         data_id_list.append(data['usercol_id'])
+    #         if (data['usercol_id'] in patuser_col_list_from_db_min):
+    #             print("data, index>>> ", data, data_list.index(data))
+    #             del data_list[data_list.index(data)]
+    
+    # delete_col_list = filter(lambda x: x not in data_id_list, patuser_col_list_from_db_min)
+    # delete_data_list = [{'pat_id':pat_id, 'usercol_id':col} for col in delete_col_list]
+
+    input_data_list = []
+    if(len(patuser_col_list_from_db_min) != 0):
+        for data in data_list:
+            if data['usercol_id'] in patuser_col_list_from_db_min:
+                patuser_col_list_from_db_min.remove(data['usercol_id'])
+            else:
+                input_data_list.append(data)
+
+    delete_data_list = [{'pat_id':pat_id, 'usercol_id':col} for col in patuser_col_list_from_db_min]
+
+    print("data_list>>>>>>>>> ", type(input_data_list), input_data_list)
+    # print("delete_col_list>>>>>", delete_col_list)
+    print("delete_data_list>>>>>", delete_data_list)
+    # 삭제할 데이터가 있으면 delete
+    if (len(delete_data_list) != 0):
+        print("/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/")
+        for delete_data in delete_data_list: 
+            pu = Pat_Usercol(delete_data['pat_id'], delete_data['usercol_id'])
+            try:
+                db_session.delete(pu)
+                db_session.commit()
+                custom_res = {"code" : 200, "message" : "sucess"}
+            # QQQ  SQLAlchemyError define 에러 해결하기.
+            except:
+                db_session.rollback()
+                custom_res = {"code" : 500, "message" : "eerrorr"}
+
+    # 데이터가 있으면 입력
+    if len(input_data_list) != 0:
+        try:
+            db_session.bulk_insert_mappings(Pat_Usercol,input_data_list)
+            db_session.commit()  
+            custom_res = {"code" : 200, "message" : "sucess"}
+
+        except SQLAlchemyError as sqlerr:
+            db_session.rollback()
+            custom_res = {"code" : 500, "message" : sqlerr}
+    else:
         custom_res = {"code" : 200, "message" : "sucess"}
-
-    except SQLAlchemyError as sqlerr:
-        db_session.rollback()
-        # custom_res = Response("Custom Response", 500, {'message': sqlerr})
-        custom_res = {"code" : 500, "message" : sqlerr}
     
     return jsonify(custom_res)
 
-    
-    
-    # ImmutableMultiDict([('req[]', '1'), ('req[]', '2'), ('req[]', '11'), ('req[]', '14')])
-
-    return jsonify({'result':"OK"})
 
 @app.route('/main/r', methods=['POST'])
 def read():

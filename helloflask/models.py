@@ -1,6 +1,6 @@
 from helloflask.init_db import Base, db_session
 from sqlalchemy import Column, Integer, String, func, ForeignKey, DATE, MetaData, Table, DATETIME
-from sqlalchemy.orm import relationship, joinedload
+from sqlalchemy.orm import relationship, joinedload, backref
 
 class Doctor(Base):
     __tablename__ = 'Doctors'
@@ -10,7 +10,7 @@ class Doctor(Base):
     password = Column(String)
     departmentId = Column(Integer)
     # department = relationship('Departments')
-    patients = relationship('Doc_Pat')
+    patients = relationship('Doc_Pat', backref=backref("addresses", order_by=id), lazy='joined')
     
     def __init__(self, email=None, passwd=None, name='의사', makeSha=False):
         self.email = email
@@ -21,7 +21,7 @@ class Doctor(Base):
         self.name = name
 
     def __repr__(self):
-        return 'User %s, %r, %r' % (self.id, self.email, self.name)
+        return 'Doctor %s, %r, %r' % (self.id, self.email, self.name)
 
 
 class Patient(Base):
@@ -49,7 +49,7 @@ class Patient(Base):
         self.name = name
 
     def __repr__(self):
-        return 'User %s, %s, %s, %s, %s' % (self.id, self.email, self.name, self.birth, self.g)
+        return 'Patient %s, %s, %s, %s, %s' % (self.id, self.email, self.name, self.birth, self.g)
 
     def get_json(self):
         return {'id' : self.id, 'name' : self.name, 'email' : self.email, 'birth' : self.birth, 'gender' : self.g}
@@ -62,8 +62,7 @@ class Doc_Pat(Base):
     doc = relationship('Doctor')
     pat = relationship('Patient')
 
-    def __init__(self, id, pat_id, doc_id):
-        self.id = id
+    def __init__(self, pat_id, doc_id):
         self.pat_id = pat_id
         self.doc_id = doc_id
 
@@ -172,3 +171,18 @@ class DisCode_Usercol(Base):
 
     def get_json(self):
         return {"discode_id" : self.discode_id, "usercol_id" : self.usercol_id}
+
+class DocPat_Disc(Base):
+    __tablename__ = 'DocPat_Disc'
+    id = Column(Integer, primary_key = True)
+    docpat_id = Column(Integer, ForeignKey('Doc_Pat.id'))
+    discode_id = Column(Integer, ForeignKey('DisCode.id'))
+    doc_pat = relationship('Doc_Pat')
+    discode = relationship('Discode')
+
+    def __init__(self, docpat_id, discode_id):
+        self.docpat_id = docpat_id
+        self.discode_id = discode_id
+
+    def get_json(self):
+        return{'docpat_id' : self.docpat_id, 'discode_id' : self.discode_id}

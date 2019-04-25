@@ -1,14 +1,18 @@
 from helloflask import app
-from flask import render_template, request, session, redirect, flash, Response, make_response, jsonify
+from flask import render_template, request, session, redirect, flash, Response, make_response, jsonify, url_for
 from helloflask.models import Patient, Doctor, Pat_Usercol, UsercolMaster, Log, Discode, DisCode_Usercol, Doc_Pat
 from sqlalchemy import func
 from sqlalchemy.sql import select, insert
 from helloflask.init_db import db_session
 from sqlalchemy.orm import joinedload
-
+from wtforms.validators import DataRequired, Length, Email, Regexp, EqualTo
+from wtforms import ValidationError
 from pprint import pprint
-
+# from flask_mail import Mail, Message
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 from datetime import date, datetime, timedelta
+from keys import mailaddr, mailpassword
+from helloflask.emailing import create_email, send_email
 
 def dated_url_for(endpoint, **values):
     if endpoint == 'static':
@@ -27,11 +31,6 @@ def login_check():
         custom_res = {"code" : 200, "message" : "success"}
         return jsonify(custom_res)
 
-app.config.update(
-	SECRET_KEY='X1243yRH!mMwf',
-	SESSION_COOKIE_NAME='pyweb_flask_session',
-	PERMANENT_SESSION_LIFETIME=timedelta(31)      # 31 days
-)
 
 @app.route('/')
 def gatekeeper():
@@ -114,10 +113,67 @@ def search():
 
     return jsonify(p.get_json())
 
-@app.route('/sign_up')
+@app.route('/sign_up', methods = ['GET'])
 def sign_up():
-    print("77777777777")
-    return render_template('sign_up2.html')
+        return render_template('sign_up3.html')
+
+
+# mail = Mail(app)
+# app.config.update(
+#     MAIL_SERVER = 'smtp.gmail.com',
+#     MAIL_PORT = 587,
+#     MAIL_USE_TLS = True,
+#     MAIL_USERNAME = mailaddr,
+#     MAIL_PASSWORD = mailpassword # QQQ mailaddr, password 환경변수로
+# )
+s = URLSafeTimedSerializer('The_Key') # QQQ secret key 바꾸기
+
+
+@app.route('/sign_up', methods=['POST'])
+def sign_up_post():
+    email = request.form.get('email')
+    name = request.form.get('name')
+    password = request.form.get('password')
+    password2 = request.form.get('password2')
+
+    print('email=',email, 'name=',name, 'passwd=', password, 'pw2=', password2) 
+
+    if password != password2:
+        flash("암호를 정확히 입력하세요!!")
+        return render_template("sign_up3.html", email=email, name=name)
+    else:
+        token = s.dumps(email, salt = 'email_confirm')
+        link = url_for('confirm_email', token = token, _external = True)
+
+        create_email(sender= 'logforyou.kjm@gmail.com', to= email, subject = '로그포유 이메일 확인', message_text = link)
+        send_email('885263546380-4ave1dm3l3l36f1m58nlk9c0adfrm1hi.apps.googleusercontent.com', 'me' , link)
+
+        # msg = Message('로그포유 입니다. 이메일을 확인해주세요.', sender= 'logforyou.kjm@gmail.com', recipients= email)
+        # msg.body = '링크를 클릭해주세요. {}'.format(link)
+        # with app.app_context():
+        #     mail.send(msg)
+
+        p = Patient(email, name, password, True)
+        print(p)
+        try:
+            db_session.add(p)
+            db_session.commit() 
+
+        except:
+            db_session.rollback()
+
+        flash("%s 님, 메일을 보냈으니 확인 해주세요." % name)
+        return redirect("/login")
+
+
+@app.route('/confirm_email/<token>')
+def confirm_email(token):
+    try:
+        email = s.loads(token, salt= 'email_confirm', max_age = 100)
+    except SignatureExpired:
+        return '<h1>유효기간이 만료되었습니다. 다시 가입해주세요. </h1>'
+    return redirect('/login')
+
 
 @app.route('/log')
 def log():

@@ -131,7 +131,8 @@ def log():
 s = URLSafeTimedSerializer('The_Key') # QQQ secret key 바꾸기
 
 @app.route('/sign_up', methods = ['GET'])
-        return render_template('sign_up3.html')
+def sign_up():
+    return render_template('sign_up3.html')
 
 @app.route('/sign_up', methods=['POST'])
 def sign_up_post():
@@ -147,8 +148,9 @@ def sign_up_post():
         p = Patient(email, name, password, True)
         try:
             token = s.dumps(email, salt = 'email_confirm')
-            link = url_for('confirm_email', values = token, _external = True)
-            send_email('로그포유 입니다.', email , link)
+            link = url_for('confirm_email', token = token, _external = True)
+            subject = 'encoding error'
+            send_email(email, subject, link)
             
             db_session.add(p)
             db_session.commit() 
@@ -157,6 +159,7 @@ def sign_up_post():
 
         flash("%s 님, 메일을 보냈으니 확인 해주세요." % name)
         return redirect("/login")
+        # return jsonify({"result":"OK"})
 
 
 
@@ -167,5 +170,5 @@ def confirm_email(token):
 
     except SignatureExpired:
         return '<h1>유효기간이 만료되었습니다. 다시 가입해주세요. </h1>'
+    
     return redirect('/login')
-=======

@@ -1,14 +1,16 @@
 import smtplib
+from keys import gmpw
 
-def send_email(subject, to , msg):
+
+def send_email(to, subject, msg):
     try:
         server = smtplib.SMTP('smtp.gmail.com:587')
         server.ehlo()
         server.starttls()
-        server.login('logforyou.kjm@gmail.com', 'zfvliqmiwsmhieuj')
-        server.sendmail('logforyou.kjm@gmail.com', to, msg)
+        server.login('logforyou.kjm@gmail.com', gmpw)
+        message = 'Subject: {}\n\n{}'.format(subject, msg)
+        server.sendmail('logforyou.kjm@gmail.com', to, message)
         server.quit()
-        print("Success: Email sent!")
-    except:
-        print("Email failed to send.")
 
+    except Exception as err:
+        print("Email failed to send.", err)

@@ -134,7 +134,7 @@ class Log(Base):
         return 'Log %s, %s, %s, %s' % (self.pat_id, self.date, self.usercol_id, self.value)
     
     def get_json(self):
-        return {"pat_id" : self.pat_id, "usercol_id" : self.usercol_id, "value" : self.value}
+        return {"id" : self.id, "pat_id" : self.pat_id, "date" : self.date, "usercol_id" : self.usercol_id, "value" : self.value}
 
 
 class Discode(Base):

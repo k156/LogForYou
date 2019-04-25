@@ -109,3 +109,14 @@
   </script>
 {% endraw %}
 
+{% raw %}
+<script id="thead-template" type="text/x-handlebars-template">
+  <tr>
+    <th>date</th>
+    {{#each head}}
+    <th>{{key}}</th>
+    {{/each}}
+  </tr>
+</script>
+{% endraw %}
+

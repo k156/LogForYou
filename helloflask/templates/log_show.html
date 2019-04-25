@@ -1,0 +1,18 @@
+{% extends "application.html" %}
+
+{% block body %}
+<!--Table-->
+<div class="table-responsive-sm">
+<table id="dtMaterialDesignExample" class="table table-striped table-hover" cellspacing="0" width="100%">
+    <thead id="log_thead"></thead>
+    <tbody id="log_tbody"></tbody>
+    <tfoot id="log_tfoot"></tfoot>
+</table>
+</div>  
+{% endblock body %}
+
+{% block script %}
+<script type=text/javascript>  
+    let data = {{ res | tojson | safe }};
+</script>
+{% endblock script %}

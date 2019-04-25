@@ -118,7 +118,7 @@ function open_modal(value){
 }
 
 $( document ).ready(function() {
-    if ( main_url === "http://localhost:5000/main"){
+    if ( main_url === "http://localhost:5000/main") {
         send_ajax('/main/r', 'POST', "", "json", function(res){
 
             // QQQ 의사 로그인 후 나의 환자 목록
@@ -128,12 +128,53 @@ $( document ).ready(function() {
  
             hbs("discode-template", res2, 'discode_list', false);
             hbs("colmaster-template", res2, 'col_list', false);
-            hbs("col-template", res2, 'badge', true)
+            hbs("col-template", res2, 'badge', true);
         });
         
-    }
+    } else if ( main_url === "http://localhost:5000/logs" ) {
+        // drawing table with handlebars
+        draw_table(data.pat_id);
+        
+        
+        window.onload = function () {
+            
+            
+            
+        };
+};});
 
-});
+
+function draw_table(v){
+    send_ajax('/logs/r', 'POST', {id : v}, "json", function(res6) {
+        console.log("res6>>>>> ", res6);
+        console.log("res6>>>>> ", res6['head']);
+        console.log("res6>>>>> ", res6['body']);
+
+        var sc = document.createElement('script');
+        sc.id = "tbody-template"
+        sc.type = "text/x-handlebars-template"
+
+        var td = ""
+        for(var i = 0; i < res6['head'].length; i++) { td += "<td>{{col_"+i+"}}</td>" }
+        // document.getElementById("myDIV").appendChild(para);
+        // td += "<td></td>"
+        var tr = "{{#each body}}<tr><td>{{date}}</td>"+td+"</tr>{{/each}}";
+        sc.innerHTML = tr;
+        document.body.appendChild(sc);
+
+
+        // hbs("test-template", res6, "test")
+        hbs('thead-template', res6, 'log_thead');
+        hbs('tbody-template', res6, 'log_tbody');
+        hbs('thead-template', res6, 'log_tfoot');
+
+        $('#dtMaterialDesignExample').DataTable({
+            "pagingType": "first_last_numbers" // "simple" option for 'Previous' and 'Next' buttons only
+          })
+        $('.dataTables_length').addClass('bs-select');
+
+    })        
+};   
 
 
 function add_col(id){
@@ -157,9 +198,9 @@ function add_col(id){
             });
         }
         hbs('col-template', res4, 'badge', false);
-    })
+    });
 
-}
+};
 
 
 function get_complete_columns(){

@@ -48,7 +48,8 @@ def gatekeeper():
     print("111111111")
     if session.get('loginUser') == None:
         return redirect('/login')
-    return render_template("application.html")
+    # return render_template("application.html")
+    return redirect('/main')
 
 @app.route('/login')
 def show_login():
@@ -73,13 +74,26 @@ def login():
     if u is not None:
         print("313131313131")
         session['loginUser'] = { 'userid': u.id, 'name': u.name , 'utype' : utype}
-        session['next'] = '/main'
-        print(session)
-        if session.get('next'):
+        # session['next'] = '/main'
+        # print(session)
+        # if session.get('next'):
+        #     next = session.get('next')
+        #     print(">>>>>", next)
+        #     del session['next']
+        #     return redirect(next)
+        if (utype == True):
+            session['next'] = '/main'
             next = session.get('next')
             print(">>>>>", next)
             del session['next']
             return redirect(next)
+        else:
+            session['next'] = '/log'
+            next = session.get('next')
+            print(">>>>>", next)
+            del session['next']
+            return redirect(next)
+            
     else:
         flash("해당 사용자가 없습니다!!")
         return redirect("/login")
@@ -95,8 +109,11 @@ def logout():
 @app.route('/main')
 def main():
     s=session['loginUser']
-
-    return render_template('main.html', utype=s['utype'], uname=s['name'])
+    
+    if s['utype'] == True:
+        return render_template('main.html', utype=s['utype'], uname=s['name'])
+    else:
+        return redirect('/log')
 
 @app.route('/main', methods=['POST'])
 def get_collist():
@@ -302,3 +319,76 @@ def log_write():
         custom_res = {"code" : 500, "message" : sqlerr}
     
     return jsonify(custom_res)
+
+@app.route('/logs')
+def logs():
+    # QQQ 의사가 환자 log를 볼 때, 환자가 로그를 볼 때, 대상의 환자 id를 보내주거나 특정해놔야 한다.
+    if session['loginUser']['utype'] == False:
+        pat_id = session['loginUser']['userid']
+    else:
+        pat_id = request.form.get('pat_id')
+
+    data = {}
+    data['pat_id'] = pat_id
+    return render_template('log_show.html', res=data)
+
+@app.route('/logs/r', methods=['POST'])
+def draw_table():
+    
+    pat_id = request.form.get('id')
+    log_list = Log.query.filter(Log.pat_id == pat_id).all()
+    log_jsonData_list = [log.get_json() for log in log_list]
+
+    key_list = []
+    for log in log_jsonData_list:
+        if log['usercol_id'] not in key_list:
+            key_list.append(log['usercol_id'])
+    
+    key_name_list = []
+    boolean_col_id = []
+    # QQQ Pat_Usercol의 usercol을 이용해서 각 환자의 칼럼의 이름과 아이디를 가지고 오도록 나중에 리팩!
+    for key in key_list:
+        col = UsercolMaster.query.filter(UsercolMaster.id == key).first()
+        key_name_list.append({'key' : col.get_json()['col_name']})
+        if col.get_json()['col_type'] == 3:
+            boolean_col_id.append(col.get_json()['id'])
+
+    # print("log_jsonData_list>>>>> ", log_jsonData_list)
+    # sort_dic = sorted(dic.items(), key=lambda d: d[1]['name'])
+    # sort_dic = sorted(log_jsonData_list, key=lambda d: d['date'])
+    # print("sort_dic>>>>>>>> ", sort_dic)
+
+    i = 0
+    col2key = {}
+    for jsonData in log_jsonData_list:   
+        if jsonData['usercol_id'] not in col2key.keys():
+            print("col2key.values()>>>>> ", col2key.keys())
+            id = "col_" + str(i)
+            col2key[jsonData['usercol_id']] = id
+            i += 1
+
+    data_list = []
+    data = {}
+    j = -1
+    for jsonData in log_jsonData_list:
+        p = jsonData['usercol_id']
+        q = jsonData['value']
+        if 'date' not in data:
+            data['date'] = jsonData['date']
+        else:
+            # print("jsonData['date']", type(jsonData['date']), type(data['date']))
+            if jsonData['date'] != data['date']:
+                data_list.append(data)
+                data = {}
+                data['date'] = jsonData['date']
+
+        if p in boolean_col_id:
+            q = "있음" if p == True else "없음"
+        data[col2key[p]] = q
+            
+    for data in data_list:
+        data['date'] = data['date'].strftime('%Y-%m-%d')
+
+    return jsonify({"head" : key_name_list, "body" : data_list})
+
+    # return jsonify({"result" : "OK"})

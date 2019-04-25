@@ -1,14 +1,16 @@
 from helloflask import app
-from flask import render_template, request, session, redirect, flash, Response, make_response, jsonify
+from flask import render_template, request, session, redirect, flash, Response, make_response, jsonify, url_for
 from helloflask.models import Patient, Doctor, Pat_Usercol, UsercolMaster, Log, Discode, DisCode_Usercol, Doc_Pat
 from sqlalchemy import func
 from sqlalchemy.sql import select, insert
 from helloflask.init_db import db_session
 from sqlalchemy.orm import joinedload
-
 from pprint import pprint
-
 from datetime import date, datetime, timedelta
+from helloflask.email import send_email
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired
+
+
 
 def dated_url_for(endpoint, **values):
     if endpoint == 'static':
@@ -114,11 +116,6 @@ def search():
 
     return jsonify(p.get_json())
 
-@app.route('/sign_up')
-def sign_up():
-    print("77777777777")
-    return render_template('sign_up2.html')
-
 @app.route('/log')
 def log():
     
@@ -129,3 +126,46 @@ def log():
 
     return render_template("log.html", uname=session['loginUser']["name"], ucol=ret) 
 
+
+
+s = URLSafeTimedSerializer('The_Key') # QQQ secret key 바꾸기
+
+@app.route('/sign_up', methods = ['GET'])
+def sign_up():
+        return render_template('sign_up3.html')
+
+@app.route('/sign_up', methods=['POST'])
+def sign_up_post():
+    email = request.form.get('email')
+    name = request.form.get('name')
+    password = request.form.get('password')
+    password2 = request.form.get('password2')
+
+    if password != password2:
+        flash("암호를 정확히 입력하세요!!")
+        return render_template("sign_up3.html", email=email, name=name)
+    else:
+        p = Patient(email, name, password, True)
+        try:
+            token = s.dumps(email, salt = 'email_confirm')
+            link = url_for('confirm_email', values = token, _external = True)
+            send_email('로그포유 입니다.', email , link)
+            
+            db_session.add(p)
+            db_session.commit() 
+        except:
+            db_session.rollback()
+
+        flash("%s 님, 메일을 보냈으니 확인 해주세요." % name)
+        return redirect("/login")
+
+
+
+@app.route('/confirm_email/<token>')
+def confirm_email(token):
+    try:
+        email = s.loads(token, salt= 'email_confirm', max_age = 100)
+
+    except SignatureExpired:
+        return '<h1>유효기간이 만료되었습니다. 다시 가입해주세요. </h1>'
+    return redirect('/login')

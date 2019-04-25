@@ -8,8 +8,6 @@ from wtforms import ValidationError
 
 
 
-
-
 class Doctor(Base):
     __tablename__ = 'Doctors'
     id = Column(Integer, primary_key=True)
@@ -20,7 +18,7 @@ class Doctor(Base):
     # department = relationship('Departments')
     patients = relationship('Doc_Pat')
     
-    def __init__(self, email=None, passwd=None, name='의사', makeSha=False):
+    def __init__(self, email=None,  name='의사', passwd=None, makeSha=False):
         self.email = email
         if makeSha:
             self.passwd = func.sha2(passwd, 256)
@@ -48,7 +46,7 @@ class Patient(Base):
     
     ## log, col-patients relationship 필요.
     
-    def __init__(self, email=None, passwd=None, name='환자', makeSha=False):
+    def __init__(self, email=None, name='환자', passwd=None, makeSha=False):
         self.email = email
         if makeSha:
             self.password = func.sha2(passwd, 256)

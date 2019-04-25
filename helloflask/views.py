@@ -131,7 +131,6 @@ def log():
 s = URLSafeTimedSerializer('The_Key') # QQQ secret key 바꾸기
 
 @app.route('/sign_up', methods = ['GET'])
-def sign_up():
         return render_template('sign_up3.html')
 
 @app.route('/sign_up', methods=['POST'])
@@ -169,3 +168,4 @@ def confirm_email(token):
     except SignatureExpired:
         return '<h1>유효기간이 만료되었습니다. 다시 가입해주세요. </h1>'
     return redirect('/login')
+=======

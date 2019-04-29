@@ -30,7 +30,9 @@ def dated_url_for(endpoint, **values):
     return url_for(endpoint, **values)
 
 def login_check():
-    if session['loginUser'] == None:
+    print(">>>>", session, len(session))
+    if len(session) == 0:
+        print("------")
         return redirect('/login')
     else:
         # custom_res = Response("Custom Response", 200, {'test': 'ttt'})
@@ -43,13 +45,17 @@ app.config.update(
 	PERMANENT_SESSION_LIFETIME=timedelta(31)      # 31 days
 )
 
+
 @app.route('/')
 def gatekeeper():
     print("111111111")
     if session.get('loginUser') == None:
         return redirect('/login')
-    # return render_template("application.html")
-    return redirect('/main')
+    return render_template("application.html")
+    
+    data = {}
+    data['utype'] = session['loginUser']['utype']
+    return redirect('/main', res=jsonify(data))
 
 @app.route('/login')
 def show_login():
@@ -111,7 +117,11 @@ def main():
     s=session['loginUser']
     
     if s['utype'] == True:
-        return render_template('main.html', utype=s['utype'], uname=s['name'])
+        data = {}
+        data['utype'] = s['utype']
+        data['uname'] = s['name']
+    # QQQ res로 보낸 데이터로 처리하기.
+        return render_template('main.html', utype=s['utype'], uname=s['name'], res=jsonify(data))
     else:
         return redirect('/log')
 
@@ -216,7 +226,7 @@ def write():
         
         for delete_data in delete_data_list: 
             # pu = Pat_Usercol(delete_data['pat_id'], delete_data['usercol_id'])
-            delete_col = Pat_Usercol.query.filter(Pat_Usercol.pat_id == delete_data['pat_id'] and Pat_Usercol.usercol_id == delete_data['usercol_id']).first()
+            delete_col = Pat_Usercol.query.filter(Pat_Usercol.pat_id == delete_data['pat_id'] , Pat_Usercol.usercol_id == delete_data['usercol_id']).first()
             delete_col_id = delete_col.get_json()['id']
             
             try:
@@ -273,7 +283,9 @@ def search():
 @app.route('/sign_up')
 def sign_up():
     print("77777777777")
-    return render_template('sign_up.html')
+    data = {}
+    data['utype'] = session['loginUser']['utype']
+    return render_template('sign_up.html', res=jsonify(data))
 
 @app.route('/log')
 def log():
@@ -284,7 +296,7 @@ def log():
     uid = session['loginUser']["userid"]
 
     # petient column information
-    ret = db_session.query(UsercolMaster).join(Pat_Usercol, UsercolMaster.id == Pat_Usercol.usercol_id).join(Patient, Patient.id == Pat_Usercol.pat_id).filter(Patient.id == uid).all()
+    ret = db_session.query(UsercolMaster).join(Pat_Usercol, UsercolMaster.id == Pat_Usercol.usercol_id).join(Patient, Patient.id == Pat_Usercol.doc_pat_id).filter(Patient.id == uid).all()
 
     return render_template("log.html", uname=session['loginUser']["name"], ucol=ret) 
 
@@ -334,7 +346,7 @@ def logs():
 
 @app.route('/logs/r', methods=['POST'])
 def draw_table():
-    
+
     pat_id = request.form.get('id')
     log_list = Log.query.filter(Log.pat_id == pat_id).all()
     log_jsonData_list = [log.get_json() for log in log_list]
@@ -392,3 +404,31 @@ def draw_table():
     return jsonify({"head" : key_name_list, "body" : data_list})
 
     # return jsonify({"result" : "OK"})
+
+
+@app.route('/logs/r2', methods=["POST","GET"])
+def draw_graph():
+
+    log_list = Log.query.filter(Log.usercol_id == 2, Log.pat_id == 1).all()
+
+    print(">>>>>>> ", len(log_list))
+
+    log_jsonData_list = [log.get_json() for log in log_list]
+
+    new_jsonData_list = []
+    for log_jsonData in log_jsonData_list:
+        # new_jsonData = {}
+        print(">>>>>>>>>>>>", type(log_jsonData['date']))
+        # new_jsonData["x"] = log_jsonData['date'].timestamp() * 1000
+        # new_jsonData["y"] = int(log_jsonData['value'])
+        new_datalist = [log_jsonData['date'].timestamp() * 1000, int(log_jsonData['value'])]
+        # new_jsonData_list.append(new_jsonData)
+        new_jsonData_list.append(new_datalist)
+    # new_jsonData_list.append([1551366123456, 4])
+    # new_jsonData_list.append([1551366654321, 3])
+
+
+    print(">>>>>>", new_jsonData_list)
+
+    # return jsonify({"result" : "OK"})
+    return jsonify({"result" : new_jsonData_list})

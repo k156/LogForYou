@@ -74,18 +74,18 @@ class Doc_Pat(Base):
 class Pat_Usercol(Base):
     __tablename__ = 'Pat_Usercol'
     id = Column(Integer, primary_key = True)
-    pat_id = Column(Integer, ForeignKey('Patients.id'))
+    doc_pat_id = Column(Integer, ForeignKey('Patients.id'))
     usercol_id = Column(Integer, ForeignKey('UsercolMaster.id'))
     pat = relationship('Patient')
     usercol = relationship('UsercolMaster')
 
 
-    def __init__(self, pat_id, usercol_id):
-        self.pat_id = pat_id
+    def __init__(self, doc_pat_id, usercol_id):
+        self.doc_pat_id = doc_pat_id
         self.usercol_id = usercol_id
     
     def get_json(self):
-        return {"id":self.id, "pat_id" : self.pat_id, "usercol_id" : self.usercol_id}
+        return {"id":self.id, "pat_id" : self.doc_pat_id, "usercol_id" : self.usercol_id}
 
     # def __repr__(self):
     #     return 'Pat_Usercol %s, %s' % (self.pat, self.usercol)

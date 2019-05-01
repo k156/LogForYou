@@ -130,7 +130,7 @@ def get_collist():
 
     discode_list = Discode.query.all()
     col_list = UsercolMaster.query.all()
-    usercol_list = UsercolMaster.query.join(Pat_Usercol, Pat_Usercol.usercol_id == UsercolMaster.id).filter(Pat_Usercol.pat_id == 1).all()
+    usercol_list = UsercolMaster.query.join(Pat_Usercol, Pat_Usercol.usercol_id == UsercolMaster.id).filter(Pat_Usercol.doc_pat_id == 1).all()
     
     data = [discode.get_json() for discode in discode_list]
     data1 = [col.get_json() for col in col_list]
@@ -472,7 +472,7 @@ def draw_table():
 @app.route('/logs/r2', methods=["POST","GET"])
 def draw_graph():
 
-    log_list = Log.query.filter(Log.usercol_id == 2, Log.pat_id == 1).all()
+    log_list = Log.query.filter(Log.pat_id == 1).all()
 
     print(">>>>>>> ", len(log_list))
 
@@ -486,12 +486,28 @@ def draw_graph():
         # new_jsonData["y"] = int(log_jsonData['value'])
         new_datalist = [log_jsonData['date'].timestamp() * 1000, int(log_jsonData['value'])]
         # new_jsonData_list.append(new_jsonData)
-        new_jsonData_list.append(new_datalist)
+        new_jsonData_list.append(new_datalist) 
     # new_jsonData_list.append([1551366123456, 4])
     # new_jsonData_list.append([1551366654321, 3])
 
 
-    print(">>>>>>", new_jsonData_list)
+    print("new_jsonData_list>>>>>>", new_jsonData_list)  # [ [1551366000000,4 ] , [] , [],,, ]  
+
 
     # return jsonify({"result" : "OK"})
-    return jsonify({"result" : new_jsonData_list})
+    return jsonify({"result" : new_jsonData_list}) # {result: [ {'name' : 'col_name' , 'data' :    [[],[],[],,,,]    }, {name :, data:[[],[],[],,,,]}]  }
+
+
+
+@app.route('/test', methods=["GET"])
+def test():
+
+    # ptu = Pat_Usercol.query.filter(Pat_Usercol.doc_pat_id == ( Doc_Pat.query.filter(Doc_Pat.doc_id == session['loginUser']['userid'], Doc_Pat.pat_id == 1).first().id) ).all()
+    ptu = Doc_Pat.query.filter(Doc_Pat.doc_id == session['loginUser']['userid']).filter(Doc_Pat.pat_id == 1).first()
+
+    print('len>>', ptu)
+    # data = Doc_Pat.query.filter(Doc_Pat.doc_id == session['loginUser']['userid'], Doc_Pat.pat_id == 1).first().id
+    # for d in str(data):
+    #     print("Data >>>>>", d )
+
+    return jsonify({'result': 'ok'})

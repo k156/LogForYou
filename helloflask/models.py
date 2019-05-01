@@ -27,7 +27,7 @@ class Doctor(Base):
 
 class Patient(Base):
     __tablename__ = 'Patients'
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, ForeignKey('Doc_Pat.pat_id'), primary_key=True)
     name = Column(String)
     email = Column(String, unique=True)
     password = Column(String)
@@ -57,11 +57,12 @@ class Patient(Base):
 
 class Doc_Pat(Base):
     __tablename__ = "Doc_Pat"
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, ForeignKey('Pat_Usercol.doc_pat_id') , primary_key=True) 
     doc_id = Column(Integer, ForeignKey('Doctors.id'))
     pat_id = Column(Integer, ForeignKey('Patients.id'))
     doc = relationship('Doctor')
     pat = relationship('Patient')
+    pat_usercol = relationship('Pat_Usercol')
 
     def __init__(self, pat_id, doc_id):
         self.pat_id = pat_id
@@ -75,12 +76,11 @@ class Doc_Pat(Base):
 class Pat_Usercol(Base):
     __tablename__ = 'Pat_Usercol'
     id = Column(Integer, primary_key = True)
-    doc_pat_id = Column(Integer, ForeignKey('Patients.id'))
+    doc_pat_id = Column(Integer, ForeignKey('Doc_Pat.id'))
     usercol_id = Column(Integer, ForeignKey('UsercolMaster.id'))
-    pat = relationship('Patient')
     usercol = relationship('UsercolMaster')
 
-
+ 
     def __init__(self, doc_pat_id, usercol_id):
         self.doc_pat_id = doc_pat_id
         self.usercol_id = usercol_id

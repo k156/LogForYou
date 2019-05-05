@@ -23,9 +23,11 @@
                     <td>{{id}}</td>
                     <td>{{birth}}</td>
                     <td>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target='#rgModal'>
+                        <!-- <button type="button" class="btn btn-primary modal-button" data-toggle="modal" data-target='#rgModal' value="{{id}}">
                             추가하기
-                        </button>
+                        </button> -->
+                        <!-- QQQ this.value와 같은 것으로 처리하기 -->
+                        <button onclick="open_modal({{id}})" class="btn btn-primary" id="myBtn" data-toggle="modal" data-target="#rgModal" val="{{id}}">추가하기</button>
                     </td>
                   </tr>
                 </tbody>
@@ -65,7 +67,7 @@
           {{#each result}}
           <tr>
             <th scope="row">1</th>
-            <td>{{id}}</td>
+            <td value="{{id}}">{{id}}</td>
             <td>{{name}}</td>
             <td>{{birth}}</td>
           </tr>
@@ -79,6 +81,42 @@
     </div>
 
   </div>
+</script>
+{% endraw %}
+
+{% raw %}
+<script id="discode-template" type="text/x-handlebars-template">
+  {{#each discode}}
+    <option value='{{id}}'>{{code}} : {{disease}}</option>
+  {{/each}}
+</script>
+{% endraw %}
+
+{% raw %}
+<script id="colmaster-template" type="text/x-handlebars-template">
+  {{#each col}}
+    <option>{{id}} : {{col_name}}</option>
+  {{/each}}
+</script>
+{% endraw %}
+
+{% raw %}
+<script id="col-template" type="text/x-handlebars-template">
+  {{#each result}}
+    <span class="badge mb-0 ml-3 waves-effect waves-effect badge-primary" id='{{id}}'>{{col_name}}<i class="close fas fa-times" value="{{id}}" onclick="remove_element({{id}})"></i>
+    </span>
+  {{/each}}
+  </script>
+{% endraw %}
+
+{% raw %}
+<script id="thead-template" type="text/x-handlebars-template">
+  <tr>
+    <th>date</th>
+    {{#each head}}
+    <th>{{key}}</th>
+    {{/each}}
+  </tr>
 </script>
 {% endraw %}
 

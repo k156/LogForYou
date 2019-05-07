@@ -22,6 +22,9 @@ class Doctor(Base):
 
     def __repr__(self):
         return 'Doctor %s, %r, %r' % (self.id, self.email, self.name)
+    
+    def get_json(self):
+        return {'id':self.id, 'name':self.name, 'email':self.email, 'password':self.password, 'departmentId':self.departmentId}
 
 
 class Patient(Base):
@@ -85,7 +88,7 @@ class Pat_Usercol(Base):
         self.usercol_id = usercol_id
     
     def get_json(self):
-        return {"id":self.id, "pat_id" : self.doc_pat_id, "usercol_id" : self.usercol_id}
+        return {"id":self.id, "doc_pat_id" : self.doc_pat_id, "usercol_id" : self.usercol_id}
 
     # def __repr__(self):
     #     return 'Pat_Usercol %s, %s' % (self.pat, self.usercol)
@@ -120,9 +123,10 @@ class Log(Base):
     pat_id = Column(Integer)
     # date = Column(String)
     date = Column(DATETIME)
-    usercol_id = Column(Integer)
+    usercol_id = Column(Integer, ForeignKey('UsercolMaster.id'))
     value = Column(String)
     # pat_usercol = relationship('Pat_Usercol')
+    master = relationship('UsercolMaster')
 
     def __init__(self, pat_id, usercol_id, value):
         self.pat_id = pat_id

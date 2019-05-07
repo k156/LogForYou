@@ -4,8 +4,7 @@ from helloflask.models import Patient, Doctor, Pat_Usercol, UsercolMaster, Log, 
 from sqlalchemy import func
 from sqlalchemy.sql import select, insert
 from helloflask.init_db import db_session
-from sqlalchemy.orm import joinedload
-
+from sqlalchemy.orm import joinedload, subqueryload
 from pprint import pprint
 import re, json
 
@@ -406,29 +405,69 @@ def draw_table():
     # return jsonify({"result" : "OK"})
 
 
+
 @app.route('/logs/r2', methods=["POST","GET"])
 def draw_graph():
+    # pu = Pat_Usercol.query.filter(Pat_Usercol.doc_pat_id == ( Doc_Pat.query.filter(Doc_Pat.doc_id == session['loginUser']['userid'], Doc_Pat.pat_id == 1).first().id) ).all()
+    pu = Pat_Usercol.query.filter(Pat_Usercol.doc_pat_id == ( Doc_Pat.query.filter(Doc_Pat.doc_id == 1, Doc_Pat.pat_id == 1).first().id) ).all()
+    uc_list = []
+    for u in pu:
+        u = u.usercol_id
+        uc_list.append(u)
+    log_list = Log.query.options(subqueryload(Log.master).load_only('col_name')).filter(Log.usercol_id.in_(uc_list), Log.pat_id == 1).all()
 
-    log_list = Log.query.filter(Log.usercol_id == 2, Log.pat_id == 1).all()
-
-    print(">>>>>>> ", len(log_list))
-
-    log_jsonData_list = [log.get_json() for log in log_list]
-
-    new_jsonData_list = []
-    for log_jsonData in log_jsonData_list:
-        # new_jsonData = {}
-        print(">>>>>>>>>>>>", type(log_jsonData['date']))
-        # new_jsonData["x"] = log_jsonData['date'].timestamp() * 1000
-        # new_jsonData["y"] = int(log_jsonData['value'])
-        new_datalist = [log_jsonData['date'].timestamp() * 1000, int(log_jsonData['value'])]
-        # new_jsonData_list.append(new_jsonData)
-        new_jsonData_list.append(new_datalist)
-    # new_jsonData_list.append([1551366123456, 4])
-    # new_jsonData_list.append([1551366654321, 3])
+    # uc_names = UsercolMaster.query.filter(UsercolMaster.id.in_(uc_list) ).all()
+    # for c in uc_names:
+    #     print('colname>>>', c.col_name)
 
 
-    print(">>>>>>", new_jsonData_list)
+    # for log in log_list:
+    #     l = {}
+    #     if log.master.col_name in existing_col_name:
+    #         l['name'] = l['name']
+    #         l['data'].append( [log.date, log.value] )
+    #         new_log_list.append(l)
+    #     else:
+    #         l['name'] = log.master.col_name
+    #         l['data'] = [] 
+    #         l['data'].append( [log.date, log.value])
+    #         # data_list.append(l['data'])
+    #         existing_col_name.append(log.master.col_name)
+    #         new_log_list.append(l)
 
-    # return jsonify({"result" : "OK"})
-    return jsonify({"result" : new_jsonData_list})
+
+    result = []
+    key_list = []
+
+    for log in log_list:
+        l = {}
+        l['data'] = [] 
+        if log.master.col_name == "기상시간":
+            continue
+
+        if log.master.col_name not in key_list:
+            l['name'] = log.master.col_name
+            l['data'].append([log.date.timestamp() * 1000, int(log.value)])
+            key_list.append(log.master.col_name)
+            result.append(l)
+        else:
+            for r in result:
+                if r['name'] == log.master.col_name:
+                    r['data'].append([log.date.timestamp() * 1000, int(log.value)])
+                    break
+
+    print("<<<<<<<<<<<<<<<<<<<<<<<<<", result, key_list)
+        
+
+
+    pprint(result)
+
+      
+
+    # ptu = Doc_Pat.query.filter(Doc_Pat.doc_id == session['loginUser']['userid']).filter(Doc_Pat.pat_id == 1).first()
+    # log_list = Log.query.filter(Log.usercol_id.in_(uc_list)).all()    
+    # data = Doc_Pat.query.filter(Doc_Pat.doc_id == session['loginUser']['userid'], Doc_Pat.pat_id == 1).first().id
+    # for d in str(data):
+    #     print("Data >>>>>", d )
+
+    return jsonify({'result': result })

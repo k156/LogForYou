@@ -43,4 +43,47 @@
 * 의사에게 id를 알려준다.
 * 확인 메일 링크를 눌러 로그 보여주기를 수락한다.
 ```
+<br/>
+<br/>
+<br/>
+
+## 소스 주소
+```
+https://github.com/k156/LogForYou
+```
+
+<br/>
+<br/>
+
+
+## 포트폴리오 주소
+```
+미정
+```
+
+<br/>
+<br/>
+
+
+
+## 태스크 관리
+```
+https://trello.com/b/hs325qZb/logforyou
+```
+
+<br/>
+<br/>
+
+
+
+## 발표자료
+```
+https://docs.google.com/presentation/d/15KmIDsjYEOs7Fjq5Uw4RWpayl4QeS1hphgdAcbBroz8/edit?usp=sharing
+```
+
+
+<br/>
+<br/>
+
+
 

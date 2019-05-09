@@ -45,6 +45,7 @@ $.ajax(
   {url: '/logs/r2',
   dataType: 'json',
   data: "",
+  contentType: "application/json, charset=utf-8",
   method: "POST",
   success: function (data) {
       console.log(">>>>>>>data ", data)
@@ -102,11 +103,7 @@ Highcharts.chart('profile', {
     }
   },
 
-  series: [{
-    type: 'area',
-    name: 'USD to EUR',
-    data: data['result']
-  }]
+  series: data['result']
 });
 }
 

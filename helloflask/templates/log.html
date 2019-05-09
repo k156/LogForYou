@@ -1,14 +1,22 @@
-{% extends "application.html" %}
+{% extends "main.html" %}
 {% from "macro/log_macro.html" import column_range5, column_boolean, column_inputbox, column_time %}
-
 <!--  QQQ log table에 인풋 -->
 {% block heading %}
 {% endblock heading %}
-
-
 <!-- patient input form -->
 {% block body %}
 <form action="/log/w" method="POST">
+  <div class="card mb-4 wow fadeIn">
+      <!--Card content-->
+      <div class="card-body d-sm-flex justify-content-between">
+          <h4 class="mb-2 mb-sm-0 pt-1">
+              <span>입력 날짜</span>
+          </h4>
+          <div class="form-group col-10">
+              <input type="date" name="0" id="date">
+          </div>  
+      </div>
+  </div>
 {% set il = namespace() %}
 {% set il.val = 1 %}
 {% if ucol %}
@@ -28,12 +36,14 @@
       {% endif %}
   {% endfor %}
 {% endif %}
-
-
 <!-- QQQ 버튼 중앙에 위치시키기  -->
   <button onclick="write_log(event)" class="btn btn-primary btn-sm my-0 p">
     Submit
   </button>
-
 </form>
 {% endblock body %}
+{% block script %}
+<script>
+ document.getElementById('date').value = new Date().toISOString().substring(0, 10);;
+</script>
+{% endblock script %}

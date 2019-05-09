@@ -1,6 +1,5 @@
 from helloflask.init_db import Base, db_session
-from sqlalchemy import Column, Integer, String, func, ForeignKey, DATE, MetaData, Table, DATETIME
-from sqlalchemy.orm import relationship, joinedload
+from sqlalchemy import Column, Integer, String, func, ForeignKey, DATE, MetaData, Table, DATETIME, SmallInteger
 from sqlalchemy.orm import relationship, joinedload, backref
 
 class Doctor(Base):
@@ -10,6 +9,7 @@ class Doctor(Base):
     email = Column(String, unique=True)
     password = Column(String)
     departmentId = Column(Integer)
+    confirmed = Column(SmallInteger, nullable = False , default = False)
     # department = relationship('Departments')
     patients = relationship('Doc_Pat', backref=backref("addresses", order_by=id), lazy='joined')
     
@@ -23,25 +23,29 @@ class Doctor(Base):
 
     def __repr__(self):
         return 'Doctor %s, %r, %r' % (self.id, self.email, self.name)
+    
+    def get_json(self):
+        return {'id':self.id, 'name':self.name, 'email':self.email, 'password':self.password, 'departmentId':self.departmentId}
 
 
 class Patient(Base):
     __tablename__ = 'Patients'
-    id = Column(Integer, ForeignKey('Doc_Pat.pat_id'), primary_key=True)
+    id = Column(Integer, primary_key=True)
     name = Column(String)
     email = Column(String, unique=True)
     password = Column(String)
     birth = Column(String)
     gender = Column(Integer)
+    confirmed = Column(SmallInteger, nullable = False , default = False)
     pat_usercol = relationship('Pat_Usercol')
     doc_pat = relationship('Doc_Pat')
-
+    
     g = 'm' if (gender == 1) else 'f'
 
     
     ## log, col-patients relationship 필요.
     
-    def __init__(self, email=None, name='환자', passwd=None, makeSha=False):
+    def __init__(self, name='환자', email=None, passwd=None, makeSha=False):
         self.email = email
         if makeSha:
             self.password = func.sha2(passwd, 256)
@@ -50,19 +54,18 @@ class Patient(Base):
         self.name = name
 
     def __repr__(self):
-        return 'Patient %s, %s, %s, %s, %s' % (self.id, self.email, self.name, self.birth, self.g)
+        return 'Patient %s, %s, %s, %s, %s' % (self.id,  self.name, self.email, self.birth, self.g)
 
     def get_json(self):
-        return {'id' : self.id, 'name' : self.name, 'email' : self.email, 'birth' : self.birth, 'gender' : self.g}
+        return {'id' : self.id, 'name' : self.name , 'email' : self.email,  'birth' : self.birth, 'gender' : self.g}
 
 class Doc_Pat(Base):
     __tablename__ = "Doc_Pat"
-    id = Column(Integer, ForeignKey('Pat_Usercol.doc_pat_id') , primary_key=True) 
+    id = Column(Integer, primary_key=True)
     doc_id = Column(Integer, ForeignKey('Doctors.id'))
     pat_id = Column(Integer, ForeignKey('Patients.id'))
     doc = relationship('Doctor')
     pat = relationship('Patient')
-    pat_usercol = relationship('Pat_Usercol')
 
     def __init__(self, pat_id, doc_id):
         self.pat_id = pat_id
@@ -76,17 +79,18 @@ class Doc_Pat(Base):
 class Pat_Usercol(Base):
     __tablename__ = 'Pat_Usercol'
     id = Column(Integer, primary_key = True)
-    doc_pat_id = Column(Integer, ForeignKey('Doc_Pat.id'))
+    doc_pat_id = Column(Integer, ForeignKey('Patients.id'))
     usercol_id = Column(Integer, ForeignKey('UsercolMaster.id'))
+    pat = relationship('Patient')
     usercol = relationship('UsercolMaster')
 
- 
+
     def __init__(self, doc_pat_id, usercol_id):
         self.doc_pat_id = doc_pat_id
         self.usercol_id = usercol_id
     
     def get_json(self):
-        return {"id":self.id, "pat_id" : self.doc_pat_id, "usercol_id" : self.usercol_id}
+        return {"id":self.id, "doc_pat_id" : self.doc_pat_id, "usercol_id" : self.usercol_id}
 
     # def __repr__(self):
     #     return 'Pat_Usercol %s, %s' % (self.pat, self.usercol)
@@ -102,8 +106,7 @@ class UsercolMaster(Base):
     col_type = Column(Integer)
     pat_usercol = relationship('Pat_Usercol')
 
-    def __init__(self):
-        self.id = id
+    def __init__(self, col_name, col_desc, dept_id, col_type):
         self.col_name = col_name
         self.col_desc = col_desc
         self.dept_id = dept_id
@@ -121,9 +124,10 @@ class Log(Base):
     pat_id = Column(Integer)
     # date = Column(String)
     date = Column(DATETIME)
-    usercol_id = Column(Integer)
+    usercol_id = Column(Integer, ForeignKey('UsercolMaster.id'))
     value = Column(String)
     # pat_usercol = relationship('Pat_Usercol')
+    master = relationship('UsercolMaster')
 
     def __init__(self, pat_id, usercol_id, value):
         self.pat_id = pat_id

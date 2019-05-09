@@ -1,57 +1,20 @@
-import base64
-from email.mime.audio import MIMEAudio
-from email.mime.base import MIMEBase
-from email.mime.image import MIMEImage
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-import mimetypes
-import os
+import smtplib
+from keys import mailpassword 
 
-#email 보내는 python script. 
+def send_email(to, subject, msg):
+    try:
+        server = smtplib.SMTP('smtp.gmail.com:587')
+        server.ehlo()
+        server.starttls()
+        pwd = mailpassword 
+        pwd.encode('utf-8')
+        email = 'logforyou.kjm@gmail.com'
+        email.encode('utf-8')
+        server.login(email, pwd)
+        message = 'Subject: {}\n\n{}'.format(subject, msg)
+        message.encode('utf-8')
+        server.sendmail(email, to, message)
+        server.quit()
 
-def create_email(sender, to, subject, message_text):
-  """Create a message for an email.
-
-  Args:
-    sender: Email address of the sender.
-    to: Email address of the receiver.
-    subject: The subject of the email message.
-    message_text: The text of the email message.
-
-  Returns:
-    An object containing a base64url encoded email object.
-  """
-  message = MIMEText(message_text)
-  message['to'] = to
-  message['from'] = sender
-  message['subject'] = subject
-  return {'raw': base64.urlsafe_b64encode(message.as_string().encode())}
-
-
-
-
-
-def send_email(service, user_id, message):
-  """Send an email message.
-
-  Args:
-    service: Authorized Gmail API service instance.
-    user_id: User's email address. The special value "me"
-    can be used to indicate the authenticated user.
-    message: Message to be sent.
-
-  Returns:
-    Sent Message.
-  """
-  try:
-    message = (service.users().messages().send(userId=user_id, body=message)
-               .execute())
-    print ('Message Id: %s' % message['id'])
-    return message
-  except:
-    print ('An error occurred.')
-
-
-
-
-
+    except Exception as err:
+        print("Email failed to send.", err)

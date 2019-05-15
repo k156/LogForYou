@@ -228,3 +228,7 @@ function remove_element(value) {
     var id = '#' + value;
     $(id).remove();
 }
+function loadSign_up() {
+
+    location.href="sign_up"
+}

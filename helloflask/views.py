@@ -7,8 +7,10 @@ from helloflask.init_db import db_session
 from sqlalchemy.orm import joinedload, subqueryload
 from pprint import pprint
 import re, json
-
+from helloflask.emailing import send_email
 from datetime import date, datetime, timedelta
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired
+
 
 def insert_data(v): 
     item = db_session.query(Table).filter_by(code = v['code']).first() 
@@ -70,10 +72,10 @@ def login():
     utype = ""
 
     if table == 'patient':
-        u = Patient.query.filter('email = :email and password = sha2(:passwd, 256)').params(email=email, passwd=passwd).first()
+        u = Patient.query.filter(Patient.email == email, Patient.password == func.sha2(passwd, 256)).first()        
         utype = False
     else:
-        u = Doctor.query.filter('email = :email and password = sha2(:passwd, 256)').params(email=email, passwd=passwd).first()
+        u = Doctor.query.filter(Doctor.email == email, Doctor.password == func.sha2(passwd, 256)).first()        
         utype = True
 
     if u is not None:
@@ -279,12 +281,88 @@ def search():
 
     return jsonify(p.get_json())
 
-@app.route('/sign_up')
+
+@app.route('/sign_up', methods = ['GET'])
 def sign_up():
-    print("77777777777")
-    data = {}
-    data['utype'] = session['loginUser']['utype']
-    return render_template('sign_up.html', res=jsonify(data))
+        return render_template('sign_up3.html')
+
+
+# mail = Mail(app)
+# app.config.update(
+#     MAIL_SERVER = 'smtp.gmail.com',
+#     MAIL_PORT = 587,
+#     MAIL_USE_TLS = True,
+#     MAIL_USERNAME = mailaddr,
+#     MAIL_PASSWORD = mailpassword # QQQ mailaddr, password 환경변수로
+# )
+s = URLSafeTimedSerializer('The_Key') # QQQ secret key 바꾸기
+
+
+@app.route('/sign_up', methods=['POST'])
+def sign_up_post():
+    email = request.form.get('email')
+    name = request.form.get('name')
+    password = request.form.get('password')
+    password2 = request.form.get('password2')
+
+    print('email=',email, 'name=',name, 'passwd=', password, 'pw2=', password2) 
+
+    if password != password2:
+        flash("암호를 정확히 입력하세요!!")
+        return render_template("sign_up3.html", email=email, name=name)
+    else:
+        token = s.dumps(email, salt = 'email_confirm')
+        print('token>>>', token)
+        link = url_for('confirm_email', token = token, _external = True)
+        print('link>>>>', link)
+        send_email(to = email, subject= 'hey' , msg= link)
+        print('mail sent')
+
+
+        # msg = Message('로그포유 입니다. 이메일을 확인해주세요.', sender= 'logforyou.kjm@gmail.com', recipients= email)
+        # msg.body = '링크를 클릭해주세요. {}'.format(link)
+        # with app.app_context():
+        #     mail.send(msg)
+
+        p = Patient( name, email, password, True)
+        print(p)
+        try:
+            db_session.add(p)
+            db_session.commit() 
+
+        except:
+            db_session.rollback()
+
+        flash("%s 님, 메일을 보냈으니 확인 해주세요." % name)
+        return redirect("/login")
+
+
+    # 건우님이 써놓은 sign_up
+# @app.route('/sign_up')
+# def sign_up():
+    # print("77777777777")
+    # data = {}
+    # data['utype'] = session['loginUser']['utype']
+    # return render_template('sign_up.html', res=jsonify(data))
+
+
+@app.route('/confirm_email/<token>')
+def confirm_email(token):
+    try:
+        email = s.loads(token, salt= 'email_confirm', max_age = 100)
+    except SignatureExpired: # max_age를 넘기면 delete from table하기.
+        return '<h1>유효기간이 만료되었습니다. 다시 가입해주세요. </h1>'
+    user = Patient.query.filter_by(email=email).first() #의사도 추가. first_or_404() 가 뭔지 알아보기. 
+    if user.confirmed:
+        flash('이미 가입 처리 된 계정입니다. 로그인 해주세요.')
+    else:
+        user.confirmed = True
+        db_session.add(user)
+        db_session.commit()
+        flash('가입 처리가 완료되었습니다. 감사합니다.') 
+    return redirect('/login')
+
+
 
 @app.route('/log')
 def log():
@@ -469,5 +547,51 @@ def draw_graph():
     # data = Doc_Pat.query.filter(Doc_Pat.doc_id == session['loginUser']['userid'], Doc_Pat.pat_id == 1).first().id
     # for d in str(data):
     #     print("Data >>>>>", d )
+
+    return jsonify({'result': result })
+
+
+
+
+
+
+
+
+@app.route('/test', methods=["POST","GET"])
+def sleep_graph():
+    # pu = Pat_Usercol.query.filter(Pat_Usercol.doc_pat_id == ( Doc_Pat.query.filter(Doc_Pat.doc_id == session['loginUser']['userid'], Doc_Pat.pat_id == 1).first().id) ).all()
+    pu = Pat_Usercol.query.filter(Pat_Usercol.doc_pat_id == ( Doc_Pat.query.filter(Doc_Pat.doc_id == 1, Doc_Pat.pat_id == 1).first().id) ).all()
+    uc_list = []
+    for u in pu:
+        u = u.usercol_id
+        uc_list.append(u)
+    log_list = Log.query.options(subqueryload(Log.master).load_only('col_name')).filter(Log.usercol_id.in_(uc_list), Log.pat_id == 1).all()
+
+    result = []
+    key_list = []
+
+    for log in log_list:
+        l = {}
+        l['data'] = [] 
+        if log.master.col_name == "기상시간":
+            continue
+
+        if log.master.col_name not in key_list:
+            l['name'] = log.master.col_name
+            l['data'].append([log.date.timestamp() * 1000, int(log.value)])
+            key_list.append(log.master.col_name)
+            result.append(l)
+        else:
+            for r in result:
+                if r['name'] == log.master.col_name:
+                    r['data'].append([log.date.timestamp() * 1000, int(log.value)])
+                    break
+
+    print("<<<<<<<<<<<<<<<<<<<<<<<<<", result, key_list)
+        
+
+
+    pprint(result)
+
 
     return jsonify({'result': result })

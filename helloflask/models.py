@@ -1,5 +1,5 @@
 from helloflask.init_db import Base, db_session
-from sqlalchemy import Column, Integer, String, func, ForeignKey, DATE, MetaData, Table, DATETIME
+from sqlalchemy import Column, Integer, String, func, ForeignKey, DATE, MetaData, Table, DATETIME, SmallInteger
 from sqlalchemy.orm import relationship, joinedload, backref
 
 class Doctor(Base):
@@ -35,15 +35,16 @@ class Patient(Base):
     password = Column(String)
     birth = Column(String)
     gender = Column(Integer)
+    confirmed = Column(SmallInteger, nullable = False , default = False)
     pat_usercol = relationship('Pat_Usercol')
     doc_pat = relationship('Doc_Pat')
-
+    
     g = 'm' if (gender == 1) else 'f'
 
     
     ## log, col-patients relationship 필요.
     
-    def __init__(self, email=None, passwd=None, name='환자', makeSha=False):
+    def __init__(self, name='환자', email=None, passwd=None, makeSha=False):
         self.email = email
         if makeSha:
             self.password = func.sha2(passwd, 256)
@@ -52,10 +53,11 @@ class Patient(Base):
         self.name = name
 
     def __repr__(self):
-        return 'Patient %s, %s, %s, %s, %s' % (self.id, self.email, self.name, self.birth, self.g)
+        return 'Patient %s, %s, %s, %s, %s' % (self.id,  self.name, self.email, self.birth, self.g)
 
     def get_json(self):
-        return {'id' : self.id, 'name' : self.name, 'email' : self.email, 'birth' : self.birth, 'gender' : self.g}
+        return {'id' : self.id, 'name' : self.name , 'email' : self.email,  'birth' : self.birth, 'gender' : self.g}
+
 
 class Doc_Pat(Base):
     __tablename__ = "Doc_Pat"

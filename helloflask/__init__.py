@@ -7,10 +7,11 @@ from flask import url_for
 import os, sys
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))))
 from keys import secret_key
-
+from flask_mail import Mail
 
 
 app = Flask(__name__)
+
 app.debug = True  
 
 def dated_url_for(endpoint, **values):

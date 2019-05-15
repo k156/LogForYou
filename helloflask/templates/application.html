@@ -103,6 +103,9 @@ position:absolute;
 
 {% endblock badge %}
 
+
+{% block addpat %}
+{% endblock addpat %}
       
       {% block body %}  
       <!--Grid row-->
@@ -200,7 +203,7 @@ position:absolute;
 
   <!--Footer-->
   <footer class="page-footer text-center font-small primary-color-dark darken-2 mt-4 wow fadeIn">
-
+      {% block footer %}
     <!--Call to action-->
     <!-- <div class="pt-4">
       <a class="btn btn-outline-white" href="https://mdbootstrap.com/docs/jquery/getting-started/download/" target="_blank"
@@ -263,8 +266,9 @@ position:absolute;
         
     </div>
     <!--/.Copyright-->
-
+    {% endblock footer %}
   </footer>
+
   <!--/.Footer-->
 
   <!-- SCRIPTS -->

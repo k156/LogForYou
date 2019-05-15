@@ -9,6 +9,7 @@ class Doctor(Base):
     email = Column(String, unique=True)
     password = Column(String)
     departmentId = Column(Integer)
+    confirmed = Column(SmallInteger, nullable = False , default = False)
     # department = relationship('Departments')
     patients = relationship('Doc_Pat', backref=backref("addresses", order_by=id), lazy='joined')
     
@@ -58,7 +59,6 @@ class Patient(Base):
     def get_json(self):
         return {'id' : self.id, 'name' : self.name , 'email' : self.email,  'birth' : self.birth, 'gender' : self.g}
 
-
 class Doc_Pat(Base):
     __tablename__ = "Doc_Pat"
     id = Column(Integer, primary_key=True)
@@ -106,8 +106,7 @@ class UsercolMaster(Base):
     col_type = Column(Integer)
     pat_usercol = relationship('Pat_Usercol')
 
-    def __init__(self):
-        self.id = id
+    def __init__(self, col_name, col_desc, dept_id, col_type):
         self.col_name = col_name
         self.col_desc = col_desc
         self.dept_id = dept_id

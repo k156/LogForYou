@@ -1,16 +1,20 @@
 from helloflask import app
-from flask import render_template, request, session, redirect, flash, Response, make_response, jsonify
+from flask import render_template, request, session, redirect, flash, Response, make_response, jsonify, url_for
 from helloflask.models import Patient, Doctor, Pat_Usercol, UsercolMaster, Log, Discode, DisCode_Usercol, Doc_Pat, DocPat_Disc
 from sqlalchemy import func
 from sqlalchemy.sql import select, insert
 from helloflask.init_db import db_session
 from sqlalchemy.orm import joinedload, subqueryload
+from wtforms.validators import DataRequired, Length, Email, Regexp, EqualTo
+from wtforms import ValidationError
 from pprint import pprint
+# from flask_mail import Mail, Message
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 import re, json
 from helloflask.emailing import send_email
 from datetime import date, datetime, timedelta
-from itsdangerous import URLSafeTimedSerializer, SignatureExpired
-
+from keys import mailaddr, mailpassword
+from helloflask.emailing import send_email
 
 def insert_data(v): 
     item = db_session.query(Table).filter_by(code = v['code']).first() 
@@ -40,11 +44,6 @@ def login_check():
         custom_res = {"code" : 200, "message" : "success"}
         return jsonify(custom_res)
 
-app.config.update(
-	SECRET_KEY='X1243yRH!mMwf',
-	SESSION_COOKIE_NAME='pyweb_flask_session',
-	PERMANENT_SESSION_LIFETIME=timedelta(31)      # 31 days
-)
 
 
 @app.route('/')
@@ -70,12 +69,15 @@ def login():
     passwd = request.form.get('passwd')
     table = request.form.get('table')
     utype = ""
-
+    
     if table == 'patient':
-        u = Patient.query.filter(Patient.email == email, Patient.password == func.sha2(passwd, 256)).first()        
+        # u = Patient.query.filter('email = :email and password = sha2(:passwd, 256)').params(email=email, passwd=passwd).first()
+        # u = Patient.query.filter(Patient.email == email, Patient.password == func.sha2(passwd, 256)).first()
+        u = Patient.query.filter(Patient.email == "a@com", Patient.password == func.sha2("a", 256)).first()
         utype = False
     else:
-        u = Doctor.query.filter(Doctor.email == email, Doctor.password == func.sha2(passwd, 256)).first()        
+        # u = Doctor.query.filter('email = :email and password = sha2(:passwd, 256)').params(email=email, passwd=passwd).first()
+        u = Doctor.query.filter(Doctor.email == email, Doctor.password == func.sha2(passwd, 256)).first()
         utype = True
 
     if u is not None:
@@ -131,7 +133,7 @@ def get_collist():
 
     discode_list = Discode.query.all()
     col_list = UsercolMaster.query.all()
-    usercol_list = UsercolMaster.query.join(Pat_Usercol, Pat_Usercol.usercol_id == UsercolMaster.id).filter(Pat_Usercol.pat_id == 1).all()
+    usercol_list = UsercolMaster.query.join(Pat_Usercol, Pat_Usercol.usercol_id == UsercolMaster.id).filter(Pat_Usercol.doc_pat_id == 1).all()
     
     data = [discode.get_json() for discode in discode_list]
     data1 = [col.get_json() for col in col_list]
@@ -162,7 +164,7 @@ def write():
     
     isAdded = False
     doc_id = session['loginUser']['userid']
-    patients_list = Doc_Pat.query.filter(Doc_Pat.pat_id == doc_id).all()
+    patients_list = Doc_Pat.query.filter(Doc_Pat.doc_id == doc_id).all()
     immutableMultiDict = request.form
 
     jsonData = immutableMultiDict.to_dict(flat=False)
@@ -281,20 +283,11 @@ def search():
 
     return jsonify(p.get_json())
 
-
 @app.route('/sign_up', methods = ['GET'])
 def sign_up():
         return render_template('sign_up3.html')
 
 
-# mail = Mail(app)
-# app.config.update(
-#     MAIL_SERVER = 'smtp.gmail.com',
-#     MAIL_PORT = 587,
-#     MAIL_USE_TLS = True,
-#     MAIL_USERNAME = mailaddr,
-#     MAIL_PASSWORD = mailpassword # QQQ mailaddr, password 환경변수로
-# )
 s = URLSafeTimedSerializer('The_Key') # QQQ secret key 바꾸기
 
 
@@ -318,11 +311,6 @@ def sign_up_post():
         send_email(to = email, subject= 'hey' , msg= link)
         print('mail sent')
 
-
-        # msg = Message('로그포유 입니다. 이메일을 확인해주세요.', sender= 'logforyou.kjm@gmail.com', recipients= email)
-        # msg.body = '링크를 클릭해주세요. {}'.format(link)
-        # with app.app_context():
-        #     mail.send(msg)
 
         p = Patient( name, email, password, True)
         print(p)
@@ -383,17 +371,25 @@ def log_write():
     pat_id = session['loginUser']['userid']
     request_list = request.form
 
+    print(">>>>>>>>>>>>>>>>>>>>>>>>", request_list)
     pattern = re.compile("[0-9]+")
 
     data_list = []
     
+    date = None
     for i, k in enumerate(request_list):
         data = {}
-        kk = re.findall(pattern,k)[0]
-        data['pat_id'] = pat_id
-        data['usercol_id'] = kk
-        data['value'] = request_list[k]
-        data_list.append(data)
+        if i == 0:
+            date = request_list[k]
+        else:
+            kk = re.findall(pattern,k)[0]
+            data['pat_id'] = pat_id
+            data['usercol_id'] = kk
+            data['value'] = request_list[k]
+            data['date'] = date
+            data_list.append(data)
+
+    print("<<<<<<<<<<<<<<<<<<<<<<<<<<", data_list)
 
     # Log table에 executemany
     try:
@@ -460,6 +456,8 @@ def draw_table():
     data = {}
     j = -1
     for jsonData in log_jsonData_list:
+        if jsonData['usercol_id'] == 12:
+            continue
         p = jsonData['usercol_id']
         q = jsonData['value']
         if 'date' not in data:
@@ -470,6 +468,7 @@ def draw_table():
                 data_list.append(data)
                 data = {}
                 data['date'] = jsonData['date']
+            
 
         if p in boolean_col_id:
             q = "있음" if p == True else "없음"
@@ -484,35 +483,10 @@ def draw_table():
 
 
 
-@app.route('/logs/r2', methods=["POST","GET"])
-def draw_graph():
-    # pu = Pat_Usercol.query.filter(Pat_Usercol.doc_pat_id == ( Doc_Pat.query.filter(Doc_Pat.doc_id == session['loginUser']['userid'], Doc_Pat.pat_id == 1).first().id) ).all()
-    pu = Pat_Usercol.query.filter(Pat_Usercol.doc_pat_id == ( Doc_Pat.query.filter(Doc_Pat.doc_id == 1, Doc_Pat.pat_id == 1).first().id) ).all()
-    uc_list = []
-    for u in pu:
-        u = u.usercol_id
-        uc_list.append(u)
-    log_list = Log.query.options(subqueryload(Log.master).load_only('col_name')).filter(Log.usercol_id.in_(uc_list), Log.pat_id == 1).all()
+@app.route('/test', methods=["GET"])
+def test():
 
-    # uc_names = UsercolMaster.query.filter(UsercolMaster.id.in_(uc_list) ).all()
-    # for c in uc_names:
-    #     print('colname>>>', c.col_name)
-
-
-    # for log in log_list:
-    #     l = {}
-    #     if log.master.col_name in existing_col_name:
-    #         l['name'] = l['name']
-    #         l['data'].append( [log.date, log.value] )
-    #         new_log_list.append(l)
-    #     else:
-    #         l['name'] = log.master.col_name
-    #         l['data'] = [] 
-    #         l['data'].append( [log.date, log.value])
-    #         # data_list.append(l['data'])
-    #         existing_col_name.append(log.master.col_name)
-    #         new_log_list.append(l)
-
+    log_list = Log.query.filter(Log.pat_id == 1, Log.usercol_id == 2).all()
 
     result = []
     key_list = []
@@ -534,64 +508,3 @@ def draw_graph():
                     r['data'].append([log.date.timestamp() * 1000, int(log.value)])
                     break
 
-    print("<<<<<<<<<<<<<<<<<<<<<<<<<", result, key_list)
-        
-
-
-    pprint(result)
-
-      
-
-    # ptu = Doc_Pat.query.filter(Doc_Pat.doc_id == session['loginUser']['userid']).filter(Doc_Pat.pat_id == 1).first()
-    # log_list = Log.query.filter(Log.usercol_id.in_(uc_list)).all()    
-    # data = Doc_Pat.query.filter(Doc_Pat.doc_id == session['loginUser']['userid'], Doc_Pat.pat_id == 1).first().id
-    # for d in str(data):
-    #     print("Data >>>>>", d )
-
-    return jsonify({'result': result })
-
-
-
-
-
-
-
-
-@app.route('/test', methods=["POST","GET"])
-def sleep_graph():
-    # pu = Pat_Usercol.query.filter(Pat_Usercol.doc_pat_id == ( Doc_Pat.query.filter(Doc_Pat.doc_id == session['loginUser']['userid'], Doc_Pat.pat_id == 1).first().id) ).all()
-    pu = Pat_Usercol.query.filter(Pat_Usercol.doc_pat_id == ( Doc_Pat.query.filter(Doc_Pat.doc_id == 1, Doc_Pat.pat_id == 1).first().id) ).all()
-    uc_list = []
-    for u in pu:
-        u = u.usercol_id
-        uc_list.append(u)
-    log_list = Log.query.options(subqueryload(Log.master).load_only('col_name')).filter(Log.usercol_id.in_(uc_list), Log.pat_id == 1).all()
-
-    result = []
-    key_list = []
-
-    for log in log_list:
-        l = {}
-        l['data'] = [] 
-        if log.master.col_name == "기상시간":
-            continue
-
-        if log.master.col_name not in key_list:
-            l['name'] = log.master.col_name
-            l['data'].append([log.date.timestamp() * 1000, int(log.value)])
-            key_list.append(log.master.col_name)
-            result.append(l)
-        else:
-            for r in result:
-                if r['name'] == log.master.col_name:
-                    r['data'].append([log.date.timestamp() * 1000, int(log.value)])
-                    break
-
-    print("<<<<<<<<<<<<<<<<<<<<<<<<<", result, key_list)
-        
-
-
-    pprint(result)
-
-
-    return jsonify({'result': result })

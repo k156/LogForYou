@@ -169,6 +169,7 @@ def write():
 
     jsonData = immutableMultiDict.to_dict(flat=False)
     request_data_list = [jsonData[d] for i, d in enumerate(jsonData)]
+    print("?/////////////// ", request_data_list)
     pat_id = int(request_data_list.pop(0)[0])
     discode = int(request_data_list.pop(0)[0])
     col_list = [int(col_id) for col_id in request_data_list.pop(0)]
@@ -190,7 +191,7 @@ def write():
     
     # 환자의 진단된 질병코드가 있는지 확인 및 추가
     assigned_discode_list = DocPat_Disc.query.join(Doc_Pat, DocPat_Disc.docpat_id == Doc_Pat.id).filter(Doc_Pat.pat_id == pat_id).all()
-    assigned_docpat = Doc_Pat.query.filter(Doc_Pat.pat_id == pat_id and Doc_Pat.doc_id == doc_id).first()
+    assigned_docpat = Doc_Pat.query.filter(Doc_Pat.pat_id == pat_id, Doc_Pat.doc_id == doc_id).first()
     assigned_docpat_id = assigned_docpat.get_json()['id']
 
     # req의 discode가 전체가 아니라, 특정한 discode가 왔고, 그 것이 등록이 안 되어 있을 때 추가
@@ -206,13 +207,13 @@ def write():
                 db_session.rollback()
             
     # 리퀘스트 칼럼
-    data_list = [{'pat_id': pat_id, 'usercol_id': col_id} for col_id in col_list]
+    data_list = [{'doc_pat_id': assigned_docpat_id, 'usercol_id': col_id} for col_id in col_list]
 
     # 기존 칼럼 확인 및 새로 추가할 칼럼으로만 데이터 구성
-    patuser_col_list_from_db = Pat_Usercol.query.filter(Pat_Usercol.pat_id == pat_id).all()
+    patuser_col_list_from_db = Pat_Usercol.query.filter(Pat_Usercol.doc_pat_id == assigned_docpat_id).all()
 
     patuser_col_list_from_db_min = [ col_list.get_json()['usercol_id'] for col_list in patuser_col_list_from_db]
-
+    print(">>>>>>>>>>>> patuser_col_list_from_db_min", patuser_col_list_from_db_min, assigned_docpat_id)
     input_data_list = []
     if(len(patuser_col_list_from_db_min) != 0):
         for data in data_list:
@@ -220,16 +221,18 @@ def write():
                 patuser_col_list_from_db_min.remove(data['usercol_id'])
             else:
                 input_data_list.append(data)
+    else:
+        input_data_list = data_list
 
-    delete_data_list = [{'pat_id':pat_id, 'usercol_id':col} for col in patuser_col_list_from_db_min]
+    delete_data_list = [{'doc_pat_id': assigned_docpat_id, 'usercol_id':col} for col in patuser_col_list_from_db_min]
 
-    
+    print(">>>>>>>>>>>", input_data_list)
     # 삭제할 데이터가 있으면 delete
     if (len(delete_data_list) != 0):
         
         for delete_data in delete_data_list: 
             # pu = Pat_Usercol(delete_data['pat_id'], delete_data['usercol_id'])
-            delete_col = Pat_Usercol.query.filter(Pat_Usercol.pat_id == delete_data['pat_id'] , Pat_Usercol.usercol_id == delete_data['usercol_id']).first()
+            delete_col = Pat_Usercol.query.filter(Pat_Usercol.doc_pat_id == delete_data['doc_pat_id'] , Pat_Usercol.usercol_id == delete_data['usercol_id']).first()
             delete_col_id = delete_col.get_json()['id']
             
             try:
@@ -453,34 +456,29 @@ def draw_table():
             i += 1
 
     data_list = []
+    date_list = []
     data = {}
-    j = -1
     for jsonData in log_jsonData_list:
-        if jsonData['usercol_id'] == 12:
-            continue
         p = jsonData['usercol_id']
         q = jsonData['value']
-        if 'date' not in data:
-            data['date'] = jsonData['date']
-        else:
-            # print("jsonData['date']", type(jsonData['date']), type(data['date']))
-            if jsonData['date'] != data['date']:
-                data_list.append(data)
-                data = {}
-                data['date'] = jsonData['date']
-            
-
+        r = jsonData['date']
+        
         if p in boolean_col_id:
             q = "있음" if p == True else "없음"
-        data[col2key[p]] = q
+
+        if r not in date_list:
+            date_list.append(r)
+            data['date'] = r
+            data[col2key[p]] = q
+            data_list.append(data)
+            data = {}
+        else:
+            data_list[date_list.index(r)][col2key[p]] = q
             
     for data in data_list:
         data['date'] = data['date'].strftime('%Y-%m-%d')
 
     return jsonify({"head" : key_name_list, "body" : data_list})
-
-    # return jsonify({"result" : "OK"})
-
 
 
 @app.route('/test', methods=["GET"])
@@ -515,6 +513,7 @@ def test():
 
 @app.route('/logs/r2', methods=["POST","GET"])
 def draw_graph():
+    # QQQ 환자는 docpat에서 여러 의사와 매칭이 되어 있을 수 있기 때문에, 그래프를 볼 수 없음..... 해결할 필요가 있음.
     pu = Pat_Usercol.query.filter(Pat_Usercol.doc_pat_id == ( Doc_Pat.query.filter(Doc_Pat.doc_id == 1, Doc_Pat.pat_id == 1).first().id) ).all()
     uc_list = []
     for u in pu:
@@ -529,20 +528,28 @@ def draw_graph():
     for log in log_list:
         l = {}
         l['data'] = [] 
-        if log.master.col_name == "기상시간":
-            continue
-        elif log.master.col_name == '취침시간':
-            continue
+        # if log.master.col_name == "기상시간":
+        #     continue
+        # elif log.master.col_name == '취침시간':
+        #     continue
 
         if log.master.col_name not in key_list:
             l['name'] = log.master.col_name
-            l['data'].append([log.date.timestamp() * 1000, int(log.value)])
+            l['data'].append((log.date.timestamp() * 1000, int(log.value)))
+
+            if log.master.col_name == "취침시간":
+                l['data'].append(((log.date.timestamp() * 1000) - 1), 0)
+                l['data'].append((log.date.timestamp() * 1000), 1)
+            elif log.master.col_name == "기상시간":
+                l['data'].append((log.date.timestamp() * 1000), 1)                
+                l['data'].append(((log.date.timestamp() * 1000) + 1), 0)
+
             key_list.append(log.master.col_name)
             result.append(l)
         else:
             for r in result:
                 if r['name'] == log.master.col_name:
-                    r['data'].append([log.date.timestamp() * 1000, int(log.value)])
+                    r['data'].append((log.date.timestamp() * 1000, int(log.value)))
                     break
 
     print("<<<<<<<<<<<<<<<<<<<<<<<<<", result, key_list)

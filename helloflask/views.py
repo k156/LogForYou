@@ -455,12 +455,9 @@ def draw_table():
             col2key[jsonData['usercol_id']] = id
             i += 1
 
-
-    
     data_list = []
-    data = {}
-    
     date_list = []
+    data = {}
     for jsonData in log_jsonData_list:
         p = jsonData['usercol_id']
         q = jsonData['value']
@@ -516,6 +513,7 @@ def test():
 
 @app.route('/logs/r2', methods=["POST","GET"])
 def draw_graph():
+    # QQQ 환자는 docpat에서 여러 의사와 매칭이 되어 있을 수 있기 때문에, 그래프를 볼 수 없음..... 해결할 필요가 있음.
     pu = Pat_Usercol.query.filter(Pat_Usercol.doc_pat_id == ( Doc_Pat.query.filter(Doc_Pat.doc_id == 1, Doc_Pat.pat_id == 1).first().id) ).all()
     uc_list = []
     for u in pu:
@@ -530,20 +528,28 @@ def draw_graph():
     for log in log_list:
         l = {}
         l['data'] = [] 
-        if log.master.col_name == "기상시간":
-            continue
-        elif log.master.col_name == '취침시간':
-            continue
+        # if log.master.col_name == "기상시간":
+        #     continue
+        # elif log.master.col_name == '취침시간':
+        #     continue
 
         if log.master.col_name not in key_list:
             l['name'] = log.master.col_name
-            l['data'].append([log.date.timestamp() * 1000, int(log.value)])
+            l['data'].append((log.date.timestamp() * 1000, int(log.value)))
+
+            if log.master.col_name == "취침시간":
+                l['data'].append(((log.date.timestamp() * 1000) - 1), 0)
+                l['data'].append((log.date.timestamp() * 1000), 1)
+            elif log.master.col_name == "기상시간":
+                l['data'].append((log.date.timestamp() * 1000), 1)                
+                l['data'].append(((log.date.timestamp() * 1000) + 1), 0)
+
             key_list.append(log.master.col_name)
             result.append(l)
         else:
             for r in result:
                 if r['name'] == log.master.col_name:
-                    r['data'].append([log.date.timestamp() * 1000, int(log.value)])
+                    r['data'].append((log.date.timestamp() * 1000, int(log.value)))
                     break
 
     print("<<<<<<<<<<<<<<<<<<<<<<<<<", result, key_list)

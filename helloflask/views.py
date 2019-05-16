@@ -11,7 +11,7 @@ from pprint import pprint
 # from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 import re, json
-from helloflask.emailing import send_email
+
 from datetime import date, datetime, timedelta
 from keys import mailaddr, mailpassword
 from helloflask.emailing import send_email
@@ -69,11 +69,11 @@ def login():
     passwd = request.form.get('passwd')
     table = request.form.get('table')
     utype = ""
-    
+
     if table == 'patient':
         # u = Patient.query.filter('email = :email and password = sha2(:passwd, 256)').params(email=email, passwd=passwd).first()
-        # u = Patient.query.filter(Patient.email == email, Patient.password == func.sha2(passwd, 256)).first()
-        u = Patient.query.filter(Patient.email == "a@com", Patient.password == func.sha2("a", 256)).first()
+        u = Patient.query.filter(Patient.email == email, Patient.password == func.sha2(passwd, 256)).first()
+        # u = Patient.query.filter(Patient.email == "a@com", Patient.password == func.sha2("a", 256)).first()
         utype = False
     else:
         # u = Doctor.query.filter('email = :email and password = sha2(:passwd, 256)').params(email=email, passwd=passwd).first()
@@ -488,6 +488,41 @@ def test():
 
     log_list = Log.query.filter(Log.pat_id == 1, Log.usercol_id == 2).all()
 
+    print(">>>>>>> ", len(log_list))
+
+    log_jsonData_list = [log.get_json() for log in log_list]
+
+    new_jsonData_list = []
+    for log_jsonData in log_jsonData_list:
+        # new_jsonData = {}
+        print(">>>>>>>>>>>>", type(log_jsonData['date']))
+        # new_jsonData["x"] = log_jsonData['date'].timestamp() * 1000
+        # new_jsonData["y"] = int(log_jsonData['value'])
+        new_datalist = [log_jsonData['date'].timestamp() * 1000, int(log_jsonData['value'])]
+        # new_jsonData_list.append(new_jsonData)
+        new_jsonData_list.append(new_datalist) 
+    # new_jsonData_list.append([1551366123456, 4])
+    # new_jsonData_list.append([1551366654321, 3])
+
+
+    print("new_jsonData_list>>>>>>", new_jsonData_list)  # [ [1551366000000,4 ] , [] , [],,, ]  
+
+
+    # return jsonify({"result" : "OK"})
+    return jsonify({"result" : new_jsonData_list}) # {result: [ {'name' : 'col_name' , 'data' :    [[],[],[],,,,]    }, {name :, data:[[],[],[],,,,]}]  }
+
+
+
+@app.route('/logs/r2', methods=["POST","GET"])
+def draw_graph():
+    pu = Pat_Usercol.query.filter(Pat_Usercol.doc_pat_id == ( Doc_Pat.query.filter(Doc_Pat.doc_id == 1, Doc_Pat.pat_id == 1).first().id) ).all()
+    uc_list = []
+    for u in pu:
+        u = u.usercol_id
+        uc_list.append(u)
+    log_list = Log.query.options(subqueryload(Log.master).load_only('col_name')).filter(Log.usercol_id.in_(uc_list), Log.pat_id == 1).all()
+
+
     result = []
     key_list = []
 
@@ -495,6 +530,8 @@ def test():
         l = {}
         l['data'] = [] 
         if log.master.col_name == "기상시간":
+            continue
+        elif log.master.col_name == '취침시간':
             continue
 
         if log.master.col_name not in key_list:
@@ -508,3 +545,18 @@ def test():
                     r['data'].append([log.date.timestamp() * 1000, int(log.value)])
                     break
 
+    print("<<<<<<<<<<<<<<<<<<<<<<<<<", result, key_list)
+        
+
+
+    pprint(result)
+
+      
+
+    # ptu = Doc_Pat.query.filter(Doc_Pat.doc_id == session['loginUser']['userid']).filter(Doc_Pat.pat_id == 1).first()
+    # log_list = Log.query.filter(Log.usercol_id.in_(uc_list)).all()    
+    # data = Doc_Pat.query.filter(Doc_Pat.doc_id == session['loginUser']['userid'], Doc_Pat.pat_id == 1).first().id
+    # for d in str(data):
+    #     print("Data >>>>>", d )
+
+    return jsonify({'result': result })

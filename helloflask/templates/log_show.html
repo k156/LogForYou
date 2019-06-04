@@ -36,6 +36,7 @@
 
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 <script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/highcharts-more.js"></script>
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
 <script src="https://code.highcharts.com/modules/export-data.js"></script>
 
@@ -77,6 +78,9 @@ $.ajax(
     enabled: false
   },
   plotOptions: {
+    series: {
+            pointStart: Date.UTC(2019, 2, 1),
+            pointInterval: 24 * 3600 * 1000 },
     area: {
       fillColor: {
         linearGradient: {

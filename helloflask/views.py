@@ -13,6 +13,7 @@ from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 import re, json
 
 from datetime import date, datetime, timedelta
+from dateutil import relativedelta
 from keys import mailaddr, mailpassword
 from helloflask.emailing import send_email
 
@@ -420,6 +421,7 @@ def logs():
     data['pat_id'] = pat_id
     return render_template('log_show.html', res=data)
 
+
 @app.route('/logs/r', methods=['POST'])
 def draw_table():
 
@@ -481,39 +483,18 @@ def draw_table():
     return jsonify({"head" : key_name_list, "body" : data_list})
 
 
-@app.route('/test', methods=["GET"])
-def test():
-
-    log_list = Log.query.filter(Log.pat_id == 1, Log.usercol_id == 2).all()
-
-    print(">>>>>>> ", len(log_list))
-
-    log_jsonData_list = [log.get_json() for log in log_list]
-
-    new_jsonData_list = []
-    for log_jsonData in log_jsonData_list:
-        # new_jsonData = {}
-        print(">>>>>>>>>>>>", type(log_jsonData['date']))
-        # new_jsonData["x"] = log_jsonData['date'].timestamp() * 1000
-        # new_jsonData["y"] = int(log_jsonData['value'])
-        new_datalist = [log_jsonData['date'].timestamp() * 1000, int(log_jsonData['value'])]
-        # new_jsonData_list.append(new_jsonData)
-        new_jsonData_list.append(new_datalist) 
-    # new_jsonData_list.append([1551366123456, 4])
-    # new_jsonData_list.append([1551366654321, 3])
-
-
-    print("new_jsonData_list>>>>>>", new_jsonData_list)  # [ [1551366000000,4 ] , [] , [],,, ]  
-
-
-    # return jsonify({"result" : "OK"})
-    return jsonify({"result" : new_jsonData_list}) # {result: [ {'name' : 'col_name' , 'data' :    [[],[],[],,,,]    }, {name :, data:[[],[],[],,,,]}]  }
-
+class Sleep():
+    def __init__(self):
+        self.l = {}
+    def sleep_graph(self, data, name, result):
+        self.l['type'] = "columnrange"
+        self.l['name'] = name
+        self.l['data'] = data
+        result.append(self.l)
 
 
 @app.route('/logs/r2', methods=["POST","GET"])
 def draw_graph():
-    # QQQ 환자는 docpat에서 여러 의사와 매칭이 되어 있을 수 있기 때문에, 그래프를 볼 수 없음..... 해결할 필요가 있음.
     pu = Pat_Usercol.query.filter(Pat_Usercol.doc_pat_id == ( Doc_Pat.query.filter(Doc_Pat.doc_id == 1, Doc_Pat.pat_id == 1).first().id) ).all()
     uc_list = []
     for u in pu:
@@ -521,35 +502,72 @@ def draw_graph():
         uc_list.append(u)
     log_list = Log.query.options(subqueryload(Log.master).load_only('col_name')).filter(Log.usercol_id.in_(uc_list), Log.pat_id == 1).all()
 
-
     result = []
+    
+    wakeuptime_list = []
+    bedtime_list = []
+    
+    # l = {}
+    for log in log_list:
+        if log.master.col_type == 4:
+            if log.master.col_name == "기상시간":
+                wakeuptime_list.append(log)
+            else:
+                bedtime_list.append(log)
+
+    sorted_wakeuptime_list = sorted(wakeuptime_list, key=lambda v: v.date)
+    sorted_bedtime_list =  sorted(bedtime_list, key=lambda v: v.date)
+
+    print("sorted_wakeuptime_list >>>>>>> ", sorted_wakeuptime_list)
+
+    sleep_start_list = []
+    sleep_end_list = []
+    for wakeuptime in sorted_wakeuptime_list:
+        wd = wakeuptime.date
+        wh, wm = wakeuptime.value.split(":")
+        for bedtime in sorted_bedtime_list:
+            bd = bedtime.date
+            bh, bm = bedtime.value.split(':')
+            if wd == bd:
+                b = int(bh) + int(bm) * (1/60)
+                w = int(wh) + int(wm) * (1/60)
+                if w < b:
+                    sleep_start_list.append([b , 24])
+                    sleep_end_list.append([0, w])
+                elif b == 24:
+                    sleep_start_list.append([23.9, 24])
+                    sleep_end_list.append([0, w])
+                else:
+                    sleep_start_list.append([23.9, 24])
+                    sleep_end_list.append([b, w])
+                break
+
+    s1 = Sleep()
+    s2 = Sleep()
+    s1.sleep_graph(sleep_start_list, '기상', result)
+    print("----------")
+    pprint(result)
+    s2.sleep_graph(sleep_end_list, '취침', result)
+    print("----------")
+    pprint(result)
+    
     key_list = []
 
     for log in log_list:
         l = {}
-        l['data'] = [] 
-        # if log.master.col_name == "기상시간":
-        #     continue
-        # elif log.master.col_name == '취침시간':
-        #     continue
+        l['data'] = []
+        if log.master.col_type == 4: continue
 
         if log.master.col_name not in key_list:
+            l['type'] = 'line'
             l['name'] = log.master.col_name
-            l['data'].append((log.date.timestamp() * 1000, int(log.value)))
-
-            if log.master.col_name == "취침시간":
-                l['data'].append(((log.date.timestamp() * 1000) - 1), 0)
-                l['data'].append((log.date.timestamp() * 1000), 1)
-            elif log.master.col_name == "기상시간":
-                l['data'].append((log.date.timestamp() * 1000), 1)                
-                l['data'].append(((log.date.timestamp() * 1000) + 1), 0)
-
+            l['data'].append([log.date.timestamp() * 1000, int(log.value)])
             key_list.append(log.master.col_name)
             result.append(l)
         else:
             for r in result:
                 if r['name'] == log.master.col_name:
-                    r['data'].append((log.date.timestamp() * 1000, int(log.value)))
+                    r['data'].append([log.date.timestamp() * 1000, int(log.value)])
                     break
 
     print("<<<<<<<<<<<<<<<<<<<<<<<<<", result, key_list)
@@ -560,10 +578,6 @@ def draw_graph():
 
       
 
-    # ptu = Doc_Pat.query.filter(Doc_Pat.doc_id == session['loginUser']['userid']).filter(Doc_Pat.pat_id == 1).first()
-    # log_list = Log.query.filter(Log.usercol_id.in_(uc_list)).all()    
-    # data = Doc_Pat.query.filter(Doc_Pat.doc_id == session['loginUser']['userid'], Doc_Pat.pat_id == 1).first().id
-    # for d in str(data):
-    #     print("Data >>>>>", d )
-
     return jsonify({'result': result })
+
+

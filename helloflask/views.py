@@ -12,7 +12,7 @@ from pprint import pprint
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 import re, json
 
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from keys import mailaddr, mailpassword
 from helloflask.emailing import send_email
 
@@ -625,7 +625,6 @@ def draw_graph():
                 wvt = datetime.strptime(wv,  "%Y-%m-%d %H:%M").timestamp() * 1000
                 bvt = datetime.strptime(bv,  "%Y-%m-%d %H:%M").timestamp() * 1000
                 sub = (timedelta(days=1) * 1000).total_seconds()
-                datetime.strftime
 
                 if wvt < bvt:
                     bvt -= sub

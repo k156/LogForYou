@@ -73,12 +73,12 @@ def login():
 
     if table == 'patient':
         # u = Patient.query.filter('email = :email and password = sha2(:passwd, 256)').params(email=email, passwd=passwd).first()
-        u = Patient.query.filter(Patient.email == email, Patient.password == func.sha2(passwd, 256)).first()
+        u = patients.query.filter(patients.email == email, patients.password == func.sha2(passwd, 256)).first()
         # u = Patient.query.filter(Patient.email == "a@com", Patient.password == func.sha2("a", 256)).first()
         utype = False
     else:
         # u = Doctor.query.filter('email = :email and password = sha2(:passwd, 256)').params(email=email, passwd=passwd).first()
-        u = Doctor.query.filter(Doctor.email == email, Doctor.password == func.sha2(passwd, 256)).first()
+        u = doctors.query.filter(doctors.email == email, doctors.password == func.sha2(passwd, 256)).first()
         utype = True
 
     if u is not None:
@@ -132,9 +132,9 @@ def main():
 @app.route('/main', methods=['POST'])
 def get_collist():
 
-    discode_list = Discode.query.all()
-    col_list = UsercolMaster.query.all()
-    usercol_list = UsercolMaster.query.join(Pat_Usercol, Pat_Usercol.usercol_id == UsercolMaster.id).filter(Pat_Usercol.doc_pat_id == 1).all()
+    discode_list = discode.query.all()
+    col_list = usercolmaster.query.all()
+    usercol_list = usercolmaster.query.join(pat_usercol, pat_usercol.usercol_id == usercolmaster.id).filter(pat_usercol.doc_pat_id == 1).all()
     
     data = [discode.get_json() for discode in discode_list]
     data1 = [col.get_json() for col in col_list]
@@ -150,10 +150,10 @@ def add_col(coltype):
     
     # QQQ discode 바꾸기
     if coltype == 'discode_list':
-        col_list = UsercolMaster.query.join(DisCode_Usercol, DisCode_Usercol.usercol_id == UsercolMaster.id).filter(DisCode_Usercol.discode_id == 311).all()
+        col_list = usercolmaster.query.join(discode_usercol, discode_usercol.usercol_id == usercolmaster.id).filter(discode_usercol.discode_id == 311).all()
 
     else:
-        col_list = UsercolMaster.query.filter(UsercolMaster.id == id).all()
+        col_list = usercolmaster.query.filter(usercolmaster.id == id).all()
     
     data = [col.get_json() for col in col_list]
     
@@ -165,7 +165,7 @@ def write():
     
     isAdded = False
     doc_id = session['loginUser']['userid']
-    patients_list = Doc_Pat.query.filter(Doc_Pat.doc_id == doc_id).all()
+    patients_list = doc_pat.query.filter(doc_pat.doc_id == doc_id).all()
     immutableMultiDict = request.form
 
     jsonData = immutableMultiDict.to_dict(flat=False)
@@ -191,8 +191,8 @@ def write():
             db_session.rollback()
     
     # 환자의 진단된 질병코드가 있는지 확인 및 추가
-    assigned_discode_list = DocPat_Disc.query.join(Doc_Pat, DocPat_Disc.docpat_id == Doc_Pat.id).filter(Doc_Pat.pat_id == pat_id).all()
-    assigned_docpat = Doc_Pat.query.filter(Doc_Pat.pat_id == pat_id, Doc_Pat.doc_id == doc_id).first()
+    assigned_discode_list = docpat_disc.query.join(doc_pat, docpat_disc.docpat_id == doc_pat.id).filter(doc_pat.pat_id == pat_id).all()
+    assigned_docpat = doc_pat.query.filter(doc_pat.pat_id == pat_id, Doc_Pat.doc_id == doc_id).first()
     assigned_docpat_id = assigned_docpat.get_json()['id']
 
     # req의 discode가 전체가 아니라, 특정한 discode가 왔고, 그 것이 등록이 안 되어 있을 때 추가
@@ -426,7 +426,7 @@ def logs():
 def draw_table():
 
     pat_id = request.form.get('id')
-    log_list = Log.query.filter(Log.pat_id == pat_id).all()
+    log_list = Log.query.filter(Log.pat_id == p).all()
     log_jsonData_list = [log.get_json() for log in log_list]
 
     key_list = []

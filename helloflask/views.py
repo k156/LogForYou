@@ -5,8 +5,8 @@ from sqlalchemy import func
 from sqlalchemy.sql import select, insert
 from helloflask.init_db import db_session
 from sqlalchemy.orm import joinedload, subqueryload
-from wtforms.validators import DataRequired, Length, Email, Regexp, EqualTo
-from wtforms import ValidationError
+# from wtforms.validators import DataRequired, Length, Email, Regexp, EqualTo
+# from wtforms import ValidationError
 from pprint import pprint
 # from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
@@ -14,7 +14,7 @@ import re, json
 
 from datetime import date, datetime, timedelta
 from dateutil import relativedelta
-from keys import mailaddr, mailpassword
+# from keys import mailaddr, mailpassword
 from helloflask.emailing import send_email
 
 def insert_data(v): 

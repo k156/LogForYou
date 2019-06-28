@@ -80,7 +80,7 @@ class Pat_Usercol(Base):
     __tablename__ = 'Pat_Usercol'
     id = Column(Integer, primary_key = True)
     doc_pat_id = Column(Integer, ForeignKey('Patients.id'))
-    usercol_id = Column(Integer, ForeignKey('UsercolMaster.id'))
+    usercol_id = Column(Integer, ForeignKey('Usercolmaster.id'))
     pat = relationship('Patient')
     usercol = relationship('UsercolMaster')
 
@@ -96,7 +96,7 @@ class Pat_Usercol(Base):
     #     return 'Pat_Usercol %s, %s' % (self.pat, self.usercol)
 
 class UsercolMaster(Base):
-    __tablename__ = 'UsercolMaster'
+    __tablename__ = 'Usercolmaster'
     id = Column(Integer, primary_key = True)
     col_name = Column(String)
     min = Column(Integer)
@@ -119,12 +119,12 @@ class UsercolMaster(Base):
         return {"id":self.id, "col_name" : self.col_name, "col_desc" : self.col_desc, "col_type" : self.col_type}
 
 class Log(Base):
-    __tablename__ = 'Log'
+    __tablename__ = 'Logs'
     id = Column(Integer, primary_key = True)
     pat_id = Column(Integer)
     # date = Column(String)
     date = Column(DATETIME)
-    usercol_id = Column(Integer, ForeignKey('UsercolMaster.id'))
+    usercol_id = Column(Integer, ForeignKey('Usercolmaster.id'))
     value = Column(String)
     # pat_usercol = relationship('Pat_Usercol')
     master = relationship('UsercolMaster')
@@ -143,7 +143,7 @@ class Log(Base):
 
 
 class Discode(Base):
-    __tablename__ = 'DisCode'
+    __tablename__ = 'DisCodes'
     id = Column(Integer, primary_key = True)
     code = Column(String) 
     disease = Column(String)
@@ -181,7 +181,7 @@ class DocPat_Disc(Base):
     __tablename__ = 'DocPat_Disc'
     id = Column(Integer, primary_key = True)
     docpat_id = Column(Integer, ForeignKey('Doc_Pat.id'))
-    discode_id = Column(Integer, ForeignKey('DisCode.id'))
+    discode_id = Column(Integer, ForeignKey('DisCodes.id'))
     doc_pat = relationship('Doc_Pat')
     discode = relationship('Discode')
 

@@ -5,7 +5,7 @@ from helloflask.init_db import init_database, db_session
 from helloflask.models import Patient, Doctor, Log, UsercolMaster, Pat_Usercol
 from flask import url_for
 import os, sys
-sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))))
+# sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))))
 from keys import secret_key
 
 

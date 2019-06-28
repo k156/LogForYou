@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, String, func, ForeignKey, DATE, MetaData
 from sqlalchemy.orm import relationship, joinedload, backref
 
 class Doctor(Base):
-    __tablename__ = 'Doctors'
+    __tablename__ = 'doctors'
     id = Column(Integer, primary_key=True)
     name = Column(String)
     email = Column(String, unique=True)
@@ -11,7 +11,7 @@ class Doctor(Base):
     departmentId = Column(Integer)
     confirmed = Column(SmallInteger, nullable = False , default = False)
     # department = relationship('Departments')
-    patients = relationship('Doc_Pat', backref=backref("addresses", order_by=id), lazy='joined')
+    patients = relationship('doc_pat', backref=backref("addresses", order_by=id), lazy='joined')
     
     def __init__(self, email=None, passwd=None, name='의사', makeSha=False):
         self.email = email
@@ -29,7 +29,7 @@ class Doctor(Base):
 
 
 class Patient(Base):
-    __tablename__ = 'Patients'
+    __tablename__ = 'patients'
     id = Column(Integer, primary_key=True)
     name = Column(String)
     email = Column(String, unique=True)
@@ -37,8 +37,8 @@ class Patient(Base):
     birth = Column(String)
     gender = Column(Integer)
     confirmed = Column(SmallInteger, nullable = False , default = False)
-    pat_usercol = relationship('Pat_Usercol')
-    doc_pat = relationship('Doc_Pat')
+    pat_usercol = relationship('pat_usercol')
+    doc_pat = relationship('doc_pat')
     
     g = 'm' if (gender == 1) else 'f'
 
@@ -60,12 +60,12 @@ class Patient(Base):
         return {'id' : self.id, 'name' : self.name , 'email' : self.email,  'birth' : self.birth, 'gender' : self.g}
 
 class Doc_Pat(Base):
-    __tablename__ = "Doc_Pat"
+    __tablename__ = "doc_pat"
     id = Column(Integer, primary_key=True)
-    doc_id = Column(Integer, ForeignKey('Doctors.id'))
-    pat_id = Column(Integer, ForeignKey('Patients.id'))
-    doc = relationship('Doctor')
-    pat = relationship('Patient')
+    doc_id = Column(Integer, ForeignKey('doctors.id'))
+    pat_id = Column(Integer, ForeignKey('patients.id'))
+    doc = relationship('doctors')
+    pat = relationship('patients')
 
     def __init__(self, pat_id, doc_id):
         self.pat_id = pat_id
@@ -77,7 +77,7 @@ class Doc_Pat(Base):
 
 
 class Pat_Usercol(Base):
-    __tablename__ = 'Pat_Usercol'
+    __tablename__ = 'pat_usercol'
     id = Column(Integer, primary_key = True)
     doc_pat_id = Column(Integer, ForeignKey('Patients.id'))
     usercol_id = Column(Integer, ForeignKey('Usercolmaster.id'))
@@ -104,7 +104,7 @@ class UsercolMaster(Base):
     col_desc = Column(String)
     dept_id = Column(Integer)
     col_type = Column(Integer)
-    pat_usercol = relationship('Pat_Usercol')
+    pat_usercol = relationship('pat_usercol')
 
     def __init__(self, col_name, col_desc, dept_id, col_type):
         self.col_name = col_name
@@ -127,7 +127,7 @@ class Log(Base):
     usercol_id = Column(Integer, ForeignKey('Usercolmaster.id'))
     value = Column(String)
     # pat_usercol = relationship('Pat_Usercol')
-    master = relationship('UsercolMaster')
+    master = relationship('usercolmaster')
 
     def __init__(self, pat_id, usercol_id, value):
         self.pat_id = pat_id
@@ -162,7 +162,7 @@ class Discode(Base):
         return {'id' : self.id, 'code' : self.code, 'disease' : self.disease, 'sci_name' : self.sci_name}
 
 class DisCode_Usercol(Base):
-    __tablename__ = 'DisCode_Usercol'
+    __tablename__ = 'discode_usercol'
     id = Column(Integer, primary_key = True)
     discode_id = Column(Integer)
     usercol_id = Column(Integer)
@@ -178,7 +178,7 @@ class DisCode_Usercol(Base):
         return {"discode_id" : self.discode_id, "usercol_id" : self.usercol_id}
 
 class DocPat_Disc(Base):
-    __tablename__ = 'DocPat_Disc'
+    __tablename__ = 'docpat_disc'
     id = Column(Integer, primary_key = True)
     docpat_id = Column(Integer, ForeignKey('Doc_Pat.id'))
     discode_id = Column(Integer, ForeignKey('DisCodes.id'))
